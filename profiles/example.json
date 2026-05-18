@@ -4,7 +4,8 @@
   "stage": "seed",
   "geo": "United Kingdom",
   "sectors": ["construction", "field operations", "engineering"],
-  "stack": ["LLM agents", "computer vision", "edge inference"],
+  "capabilities": ["LLM agents", "computer vision", "edge inference"],
+  "trl": 5,
   "goals": [
     "secure non-dilutive funding in the next 12 months",
     "win first public sector pilot",

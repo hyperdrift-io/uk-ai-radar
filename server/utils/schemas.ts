@@ -8,7 +8,14 @@ export const ProfileSchema = z.object({
   stage: z.enum(['pre-seed', 'seed', 'series-a', 'series-b', 'later']),
   geo: z.string().min(1),
   sectors: z.array(z.string()).default([]),
-  stack: z.array(z.string()).default([]),
+  capabilities: z.array(z.string()).default([]).describe('what the company DOES technically — e.g. "computer vision", "LLM agents"'),
+  trl: z
+    .number()
+    .int()
+    .min(1)
+    .max(9)
+    .optional()
+    .describe('Technology Readiness Level 1–9 (gov.uk-native scale; many grants gate on this)'),
   goals: z.array(z.string()).default([]),
   exclude: z.array(z.string()).default([]),
 })
@@ -74,12 +81,33 @@ export type AnalystExtraction = z.infer<typeof AnalystExtractionSchema>
 
 // ---- Ranked item (Strategist + Editor output) ----
 
+export const QualityFlagSchema = z.enum([
+  'no-deadline',
+  'no-amount',
+  'no-eligibility',
+  'thin-summary',
+  'angle-not-grounded',
+  'angle-ignores-profile',
+  'past-deadline',
+])
+export type QualityFlag = z.infer<typeof QualityFlagSchema>
+
+export const QualitySchema = z.object({
+  citationGrounding: z.number().min(0).max(1),
+  profileCoherence: z.number().min(0).max(1),
+  actionabilityHonesty: z.number().min(0).max(1),
+  overall: z.number().min(0).max(1),
+  flags: z.array(QualityFlagSchema).default([]),
+})
+export type Quality = z.infer<typeof QualitySchema>
+
 export const RankedItemSchema = AnalysedItemSchema.extend({
   fitScore: z.number().min(0).max(1).describe('0–1 fit to the active profile'),
   actionability: z.number().min(0).max(1).describe('0–1 how concrete the next step is'),
   rank: z.number().int().min(1).describe('1-indexed final rank'),
   angle: z.string().describe('per-profile "so what?" angle, 1–3 sentences'),
   kindColor: z.enum(['blue', 'green', 'turquoise', 'purple', 'pink', 'orange', 'grey']),
+  quality: QualitySchema.optional(),
 })
 export type RankedItem = z.infer<typeof RankedItemSchema>
 

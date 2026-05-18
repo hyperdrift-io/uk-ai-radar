@@ -10,8 +10,9 @@ Each `*.json` file is a founder profile consumed by the Strategist persona to ra
   company: string
   stage: 'pre-seed' | 'seed' | 'series-a' | 'series-b' | 'later'
   geo: string           // headquartered region (UK eligibility matters for grants)
-  sectors: string[]     // domain tags
-  stack: string[]       // technical tags
+  sectors: string[]     // domain tags (e.g. "construction", "healthcare")
+  capabilities: string[] // what the company does technically (e.g. "computer vision")
+  trl?: number          // Technology Readiness Level 1–9 (gov.uk-native scale; many grants gate on this)
   goals: string[]       // free-text near-term objectives
   exclude: string[]     // free-text disqualifiers
 }

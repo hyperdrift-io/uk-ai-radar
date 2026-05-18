@@ -1,5 +1,6 @@
 import { analyst } from './personas/analyst'
 import { editor } from './personas/editor'
+import { evaluator } from './personas/evaluator'
 import { scout } from './personas/scout'
 import { strategist } from './personas/strategist'
 import { initialState, type RadarState } from './state'
@@ -26,6 +27,7 @@ export async function runRadar(profile: Profile): Promise<RadarState> {
   state = merge(state, await analyst(state))
   state = merge(state, await strategist(state))
   state = merge(state, editor(state))
+  state = merge(state, evaluator(state))
   return state
 }
 
