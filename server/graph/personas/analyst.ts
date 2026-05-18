@@ -1,4 +1,4 @@
-import { loadAnalysis, storeAnalysis } from '../../utils/cache'
+import { loadItem, storeItem } from '../../utils/cache'
 import {
   type AnalysedItem,
   AnalystExtractionSchema,
@@ -39,10 +39,10 @@ export async function analyst(state: RadarState): Promise<Partial<RadarState>> {
   let reused = 0
 
   for (const item of state.rawItems) {
-    const cached = loadAnalysis(item.sourceUrl, item.contentHash)
+    const cached = loadItem(item.sourceUrl, item.contentHash)
     if (cached) {
       reused++
-      analysed.push({ ...item, ...cached })
+      analysed.push(cached)
       continue
     }
 
@@ -56,8 +56,9 @@ export async function analyst(state: RadarState): Promise<Partial<RadarState>> {
         maxTokens: 600,
       })
       llmCalls++
-      storeAnalysis(item.sourceUrl, item.contentHash, extraction)
-      analysed.push({ ...item, ...extraction })
+      const full: AnalysedItem = { ...item, ...extraction }
+      storeItem(full)
+      analysed.push(full)
     } catch (err) {
       console.error(`[analyst] failed item ${item.sourceUrl}`, err)
     }

@@ -12,6 +12,7 @@ useHead({
         <NuxtLink to="/" class="site-header__brand">UK AI Radar</NuxtLink>
         <nav class="site-header__nav" aria-label="Primary">
           <NuxtLink to="/">Home</NuxtLink>
+          <NuxtLink to="/explore">Explore</NuxtLink>
           <NuxtLink to="/new-profile">New profile</NuxtLink>
           <NuxtLink to="/sources">Sources</NuxtLink>
           <NuxtLink to="/about">About</NuxtLink>

@@ -32,7 +32,12 @@ const { data: briefs } = await useFetch('/api/briefs')
       <ul class="govuk-list">
         <li v-for="b in briefs" :key="b.profile">
           <NuxtLink :to="`/brief/${b.profile}`" class="govuk-link">{{ b.profile }}</NuxtLink>
-          <span class="govuk-body-s"> · last updated {{ new Date(b.generatedAt).toLocaleDateString('en-GB') }}</span>
+          <span class="govuk-body-s">
+            · last updated
+            <time :datetime="b.generatedAt">
+              {{ new Date(b.generatedAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) }}
+            </time>
+          </span>
         </li>
       </ul>
     </div>

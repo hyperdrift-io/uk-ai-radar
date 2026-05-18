@@ -32,8 +32,11 @@ useSeoMeta({
 
     <template v-else-if="data">
       <p class="govuk-body-l">
-        Generated {{ new Date(data.generatedAt).toLocaleDateString('en-GB') }} ·
-        {{ data.itemCount }} ranked item{{ data.itemCount === 1 ? '' : 's' }}.
+        Generated
+        <time :datetime="data.generatedAt">
+          {{ new Date(data.generatedAt).toLocaleString('en-GB', { dateStyle: 'medium', timeStyle: 'short' }) }}
+        </time>
+        · {{ data.itemCount }} ranked item{{ data.itemCount === 1 ? '' : 's' }}.
       </p>
 
       <div v-if="data.itemCount === 0" class="govuk-notification-banner" role="region" aria-label="No items">

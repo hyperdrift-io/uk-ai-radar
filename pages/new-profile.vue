@@ -32,6 +32,26 @@ const submitting = ref(false)
 const generating = ref(false)
 const error = ref<string | null>(null)
 const saved = ref(false)
+const slugTouched = ref(false)
+
+function slugify(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 40)
+}
+
+// Auto-fill slug from company name until the user manually edits the slug field.
+watch(
+  () => form.company,
+  (v) => {
+    if (!slugTouched.value) form.slug = slugify(v)
+  },
+)
 
 async function save(then?: 'generate' | 'view') {
   error.value = null
@@ -77,14 +97,27 @@ async function save(then?: 'generate' | 'view') {
 
     <form @submit.prevent="save('generate')" novalidate>
       <div class="govuk-form-group">
-        <label class="govuk-label" for="slug">Slug</label>
-        <div class="govuk-hint">URL-safe identifier. Lowercase letters, digits and hyphens only.</div>
-        <input class="govuk-input govuk-input--width-20" id="slug" v-model="form.slug" required pattern="[a-z0-9-]+" />
+        <label class="govuk-label" for="company">Profile name</label>
+        <div class="govuk-hint">
+          Your company name, or any label for this profile. Used to title the brief.
+        </div>
+        <input class="govuk-input" id="company" v-model="form.company" required />
       </div>
 
       <div class="govuk-form-group">
-        <label class="govuk-label" for="company">Company name</label>
-        <input class="govuk-input" id="company" v-model="form.company" required />
+        <label class="govuk-label" for="slug">URL slug</label>
+        <div class="govuk-hint">
+          Auto-generated from the profile name. This is the URL path — your brief will be at
+          <code>/brief/{{ form.slug || 'your-slug' }}</code>. Edit only if you want a custom URL.
+        </div>
+        <input
+          class="govuk-input govuk-input--width-20"
+          id="slug"
+          v-model="form.slug"
+          required
+          pattern="[a-z0-9-]+"
+          @input="slugTouched = true"
+        />
       </div>
 
       <div class="govuk-form-group">

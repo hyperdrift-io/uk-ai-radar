@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import Database from 'better-sqlite3'
-import type { AnalystExtraction } from './schemas'
+import { type AnalysedItem, AnalysedItemSchema, type ItemKind } from './schemas'
 
 function defaultPath(): string {
   return join(process.cwd(), 'data', 'cache.sqlite')
@@ -21,12 +21,34 @@ function db(path: string = defaultPath()): Database.Database {
       content_hash TEXT NOT NULL,
       fetched_at TEXT NOT NULL
     );
+  `)
+
+  // Schema-migrate analysed_items. The earlier schema stored only the
+  // extraction subset; the current one stores the full AnalysedItem so search
+  // works. Items are regenerable for the cost of one LLM call each, so dropping
+  // and recreating is safe.
+  const cols = conn
+    .prepare<[], { name: string }>('PRAGMA table_info(analysed_items)')
+    .all()
+    .map((r) => r.name)
+  const hasNewSchema = cols.includes('item_json') && cols.includes('kind') && cols.includes('source_host')
+  if (cols.length > 0 && !hasNewSchema) {
+    conn.exec('DROP TABLE analysed_items')
+  }
+
+  conn.exec(`
     CREATE TABLE IF NOT EXISTS analysed_items (
       source_url TEXT PRIMARY KEY,
       content_hash TEXT NOT NULL,
-      analysis_json TEXT NOT NULL,
+      item_json TEXT NOT NULL,
+      kind TEXT NOT NULL,
+      deadline TEXT,
+      source_host TEXT NOT NULL,
       analysed_at TEXT NOT NULL
     );
+    CREATE INDEX IF NOT EXISTS idx_analysed_kind ON analysed_items(kind);
+    CREATE INDEX IF NOT EXISTS idx_analysed_deadline ON analysed_items(deadline);
+    CREATE INDEX IF NOT EXISTS idx_analysed_source_host ON analysed_items(source_host);
   `)
   _db = conn
   return conn
@@ -65,35 +87,98 @@ export function recordAndDiff(url: string, body: string): { changed: boolean; ha
 }
 
 /**
- * Look up a previously-analysed item. Returns the extraction if the stored
- * record matches the current contentHash (i.e. the item has not changed since
- * we last analysed it), else null.
+ * Look up a previously-analysed item. Returns the full AnalysedItem if the
+ * stored record matches the current contentHash, else null.
  */
-export function loadAnalysis(sourceUrl: string, contentHash: string): AnalystExtraction | null {
+export function loadItem(sourceUrl: string, contentHash: string): AnalysedItem | null {
   const row = db()
-    .prepare<[string], { content_hash: string; analysis_json: string }>(
-      'SELECT content_hash, analysis_json FROM analysed_items WHERE source_url = ?',
+    .prepare<[string], { content_hash: string; item_json: string }>(
+      'SELECT content_hash, item_json FROM analysed_items WHERE source_url = ?',
     )
     .get(sourceUrl)
   if (!row || row.content_hash !== contentHash) return null
   try {
-    return JSON.parse(row.analysis_json) as AnalystExtraction
+    return AnalysedItemSchema.parse(JSON.parse(row.item_json))
   } catch {
     return null
   }
 }
 
-export function storeAnalysis(
-  sourceUrl: string,
-  contentHash: string,
-  extraction: AnalystExtraction,
-): void {
+export function storeItem(item: AnalysedItem): void {
   db()
     .prepare(
-      'INSERT INTO analysed_items (source_url, content_hash, analysis_json, analysed_at) VALUES (?, ?, ?, ?) ' +
-        'ON CONFLICT(source_url) DO UPDATE SET content_hash = excluded.content_hash, analysis_json = excluded.analysis_json, analysed_at = excluded.analysed_at',
+      'INSERT INTO analysed_items (source_url, content_hash, item_json, kind, deadline, source_host, analysed_at) ' +
+        'VALUES (?, ?, ?, ?, ?, ?, ?) ' +
+        'ON CONFLICT(source_url) DO UPDATE SET content_hash = excluded.content_hash, item_json = excluded.item_json, ' +
+        'kind = excluded.kind, deadline = excluded.deadline, source_host = excluded.source_host, analysed_at = excluded.analysed_at',
     )
-    .run(sourceUrl, contentHash, JSON.stringify(extraction), new Date().toISOString())
+    .run(
+      item.sourceUrl,
+      item.contentHash,
+      JSON.stringify(item),
+      item.kind,
+      item.deadline,
+      item.sourceHost,
+      new Date().toISOString(),
+    )
+}
+
+export interface SearchFilters {
+  q?: string
+  kinds?: ItemKind[]
+  sources?: string[]
+  deadline?: 'open' | 'closing-soon' | 'closed' | 'any'
+  limit?: number
+}
+
+export function searchItems(filters: SearchFilters = {}): AnalysedItem[] {
+  const where: string[] = []
+  const params: (string | number)[] = []
+
+  if (filters.kinds && filters.kinds.length > 0) {
+    where.push(`kind IN (${filters.kinds.map(() => '?').join(',')})`)
+    params.push(...filters.kinds)
+  }
+  if (filters.sources && filters.sources.length > 0) {
+    where.push(`source_host IN (${filters.sources.map(() => '?').join(',')})`)
+    params.push(...filters.sources)
+  }
+  if (filters.deadline === 'open') {
+    where.push('(deadline IS NULL OR deadline >= date("now"))')
+  } else if (filters.deadline === 'closing-soon') {
+    where.push('deadline IS NOT NULL AND deadline >= date("now") AND deadline <= date("now", "+30 days")')
+  } else if (filters.deadline === 'closed') {
+    where.push('deadline IS NOT NULL AND deadline < date("now")')
+  }
+  if (filters.q) {
+    where.push('item_json LIKE ?')
+    params.push(`%${filters.q}%`)
+  }
+
+  const sql =
+    'SELECT item_json FROM analysed_items' +
+    (where.length ? ' WHERE ' + where.join(' AND ') : '') +
+    ' ORDER BY COALESCE(deadline, "9999") ASC, analysed_at DESC' +
+    ' LIMIT ?'
+  params.push(filters.limit ?? 100)
+
+  const rows = db().prepare<typeof params, { item_json: string }>(sql).all(...params)
+  const out: AnalysedItem[] = []
+  for (const r of rows) {
+    try {
+      out.push(AnalysedItemSchema.parse(JSON.parse(r.item_json)))
+    } catch {
+      // skip malformed rows silently
+    }
+  }
+  return out
+}
+
+export function listSourceHosts(): string[] {
+  const rows = db()
+    .prepare<[], { source_host: string }>('SELECT DISTINCT source_host FROM analysed_items ORDER BY source_host')
+    .all()
+  return rows.map((r) => r.source_host)
 }
 
 export function resetCacheForTests(path?: string): void {
