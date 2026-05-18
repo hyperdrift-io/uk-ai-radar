@@ -1,0 +1,17 @@
+{
+  "slug": "example",
+  "company": "Example AI Ltd",
+  "stage": "seed",
+  "geo": "United Kingdom",
+  "sectors": ["construction", "field operations", "engineering"],
+  "stack": ["LLM agents", "computer vision", "edge inference"],
+  "goals": [
+    "secure non-dilutive funding in the next 12 months",
+    "win first public sector pilot",
+    "stay ahead of upcoming AI compliance requirements"
+  ],
+  "exclude": [
+    "academic-only programmes",
+    "consortium-led grants requiring >3 partners"
+  ]
+}

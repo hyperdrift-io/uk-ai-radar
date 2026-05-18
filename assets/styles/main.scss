@@ -1,0 +1,53 @@
+// GOV.UK Design System — we use the visual language but not the crown / wordmark.
+// Asset paths are resolved from node_modules at build time.
+$govuk-assets-path: '/govuk-assets/';
+
+@import 'govuk-frontend/dist/govuk/all';
+
+// Project-local additions — keep minimal, prefer Design System tokens.
+.site-header {
+  background: govuk-colour('black');
+  color: govuk-colour('white');
+  padding: govuk-spacing(2) 0;
+}
+
+.site-header__inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 govuk-spacing(3);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: govuk-spacing(4);
+}
+
+.site-header__brand {
+  color: govuk-colour('white');
+  font-family: $govuk-font-family;
+  font-weight: 700;
+  font-size: 1.25rem;
+  text-decoration: none;
+}
+
+.site-header__nav {
+  display: flex;
+  gap: govuk-spacing(3);
+
+  a {
+    color: govuk-colour('white');
+    text-decoration: none;
+
+    &.router-link-active {
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+  }
+}
+
+.site-footer {
+  margin-top: govuk-spacing(8);
+  padding: govuk-spacing(4) 0;
+  border-top: 1px solid govuk-colour('mid-grey');
+  font-size: 0.875rem;
+  color: govuk-colour('dark-grey');
+}
