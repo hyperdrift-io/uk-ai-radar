@@ -11,7 +11,7 @@ interface FormState {
   geo: string
   sectors: string
   capabilities: string
-  trl: string
+  trlBand: '' | 'research' | 'prototype' | 'deployment'
   goals: string
   exclude: string
 }
@@ -23,7 +23,7 @@ const form = reactive<FormState>({
   geo: 'United Kingdom',
   sectors: '',
   capabilities: '',
-  trl: '',
+  trlBand: '',
   goals: '',
   exclude: '',
 })
@@ -116,14 +116,37 @@ async function save(then?: 'generate' | 'view') {
         <textarea class="govuk-textarea" id="capabilities" rows="3" v-model="form.capabilities"></textarea>
       </div>
 
-      <div class="govuk-form-group">
-        <label class="govuk-label" for="trl">TRL (optional)</label>
+      <fieldset class="govuk-fieldset">
+        <legend class="govuk-fieldset__legend">Where are you in the journey?</legend>
         <div class="govuk-hint">
-          Technology Readiness Level 1–9. UK gov-native scale used by many grant calls.
-          1 = basic research; 9 = system proven in operational environment.
+          UK gov programmes route by maturity band (the Technology Readiness Level scale).
+          Higher is <strong>not</strong> better — grants subsidise the riskier stages.
+          Pick the band that best fits your work today.
         </div>
-        <input class="govuk-input govuk-input--width-5" id="trl" type="number" min="1" max="9" v-model="form.trl" />
-      </div>
+        <div class="govuk-radios">
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="trl-research" type="radio" value="research" v-model="form.trlBand" />
+            <label class="govuk-label govuk-radios__label" for="trl-research">
+              Research / proving the concept
+              <span class="govuk-hint">TRL 1–3. Funded by UKRI Research Councils, ARIA.</span>
+            </label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="trl-prototype" type="radio" value="prototype" v-model="form.trlBand" />
+            <label class="govuk-label govuk-radios__label" for="trl-prototype">
+              Building a working prototype
+              <span class="govuk-hint">TRL 4–6. The Innovate UK Smart Grant sweet spot — most AI startup grants land here.</span>
+            </label>
+          </div>
+          <div class="govuk-radios__item">
+            <input class="govuk-radios__input" id="trl-deployment" type="radio" value="deployment" v-model="form.trlBand" />
+            <label class="govuk-label govuk-radios__label" for="trl-deployment">
+              Deploying with paying customers
+              <span class="govuk-hint">TRL 7–9. Public sector contracts and scale-up programmes — fewer grants, more tenders.</span>
+            </label>
+          </div>
+        </div>
+      </fieldset>
 
       <div class="govuk-form-group">
         <label class="govuk-label" for="goals">Near-term goals</label>

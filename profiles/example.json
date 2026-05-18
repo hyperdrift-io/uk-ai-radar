@@ -5,7 +5,7 @@
   "geo": "United Kingdom",
   "sectors": ["construction", "field operations", "engineering"],
   "capabilities": ["LLM agents", "computer vision", "edge inference"],
-  "trl": 5,
+  "trlBand": "prototype",
   "goals": [
     "secure non-dilutive funding in the next 12 months",
     "win first public sector pilot",

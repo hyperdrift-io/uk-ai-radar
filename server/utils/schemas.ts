@@ -9,13 +9,14 @@ export const ProfileSchema = z.object({
   geo: z.string().min(1),
   sectors: z.array(z.string()).default([]),
   capabilities: z.array(z.string()).default([]).describe('what the company DOES technically — e.g. "computer vision", "LLM agents"'),
-  trl: z
-    .number()
-    .int()
-    .min(1)
-    .max(9)
+  trlBand: z
+    .enum(['research', 'prototype', 'deployment'])
     .optional()
-    .describe('Technology Readiness Level 1–9 (gov.uk-native scale; many grants gate on this)'),
+    .describe(
+      'Maturity band — maps internally to TRL: research=1–3 (basic R&D, UKRI / ARIA), ' +
+        'prototype=4–6 (working prototype, the Innovate UK Smart Grant sweet spot), ' +
+        'deployment=7–9 (commercial scale; contracts not grants).',
+    ),
   goals: z.array(z.string()).default([]),
   exclude: z.array(z.string()).default([]),
 })

@@ -15,10 +15,10 @@ const FormSchema = ProfileSchema.extend({
   capabilities: ArrayFromTextSchema,
   goals: ArrayFromTextSchema,
   exclude: ArrayFromTextSchema,
-  trl: z
-    .union([z.number(), z.string()])
+  trlBand: z
+    .union([z.literal(''), z.enum(['research', 'prototype', 'deployment'])])
     .optional()
-    .transform((v) => (v === undefined || v === '' ? undefined : Number(v))),
+    .transform((v) => (v === '' || v === undefined ? undefined : v)),
 })
 
 export default defineEventHandler(async (event) => {

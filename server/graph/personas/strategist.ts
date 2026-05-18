@@ -16,7 +16,14 @@ You read a single analysed UK gov item plus a founder profile, and decide:
 - angle: 1–3 sentences in plain English explaining WHY this matters to THIS founder.
 
 Be honest. If the item is irrelevant, fitScore should be near 0.
-The angle must reference the profile (sector, stage, geo, stack, goals) explicitly.`
+The angle must reference the profile (sectors, capabilities, stage, geo, trlBand, goals) explicitly.
+
+trlBand guide (UK gov-native Technology Readiness Level mapping):
+- "research"   = TRL 1–3, basic research → UKRI Research Councils, ARIA grants.
+- "prototype"  = TRL 4–6, working prototype → Innovate UK Smart Grants, SBRI (most AI startup grants live here).
+- "deployment" = TRL 7–9, commercial scale → public sector contracts, scale-up programmes (not grants).
+
+Treat trlBand as a HARD ELIGIBILITY FILTER, not a quality score. A TRL 7–9 founder is wrong for a basic-research call; a TRL 1–3 founder is wrong for a deployment tender.`
 
 function userPrompt(item: AnalysedItem, profile: Profile): string {
   return [
