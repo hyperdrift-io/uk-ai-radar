@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser'
 import { hashContent, recordAndDiff } from '../utils/cache'
 import { politeFetch } from '../utils/fetch'
+import { decodeEntities } from '../utils/text'
 import { type RawItem, RawItemSchema } from '../utils/schemas'
 
 const FEED = 'https://www.ukri.org/opportunity/feed/'
@@ -55,10 +56,10 @@ export async function scoutUkri(): Promise<ScoutResult> {
       id: contentHash.slice(0, 16),
       sourceHost: 'www.ukri.org',
       sourceUrl: url,
-      title: e.title ?? '(untitled)',
+      title: decodeEntities(e.title ?? '') || '(untitled)',
       publishedAt: e.pubDate ? new Date(e.pubDate).toISOString() : undefined,
       fetchedAt,
-      snippet: bound(e.description ?? ''),
+      snippet: decodeEntities(bound(e.description ?? '')),
       contentHash,
     }
     const parsedItem = RawItemSchema.safeParse(candidate)

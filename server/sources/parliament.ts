@@ -1,5 +1,6 @@
 import { hashContent, recordAndDiff } from '../utils/cache'
 import { politeFetch } from '../utils/fetch'
+import { decodeEntities } from '../utils/text'
 import { type RawItem, RawItemSchema } from '../utils/schemas'
 
 const ENDPOINT =
@@ -60,11 +61,11 @@ export async function scoutParliament(): Promise<ScoutResult> {
       id: contentHash.slice(0, 16),
       sourceHost: 'hansard.parliament.uk',
       sourceUrl: url,
-      title: r.Title,
+      title: decodeEntities(r.Title),
       // Hansard dates carry no timezone; the schema wants an instant.
       publishedAt: r.SittingDate ? (/[Zz]|[+-]\d\d:\d\d$/.test(r.SittingDate) ? r.SittingDate : `${r.SittingDate}Z`) : undefined,
       fetchedAt,
-      snippet: r.Snippet ?? r.DebateSection ?? '',
+      snippet: decodeEntities(r.Snippet ?? r.DebateSection ?? ''),
       contentHash,
     }
     const parsedItem = RawItemSchema.safeParse(candidate)

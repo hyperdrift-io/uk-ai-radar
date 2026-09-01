@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser'
 import { hashContent, recordAndDiff } from '../utils/cache'
 import { politeFetch } from '../utils/fetch'
+import { decodeEntities } from '../utils/text'
 import { type RawItem, RawItemSchema } from '../utils/schemas'
 
 const FEEDS: ReadonlyArray<{ url: string; label: string }> = [
@@ -97,10 +98,10 @@ export async function scoutGovUk(): Promise<ScoutResult> {
         id: contentHash.slice(0, 16),
         sourceHost: 'www.gov.uk',
         sourceUrl: url,
-        title: textOf(e.title) || '(untitled)',
+        title: decodeEntities(textOf(e.title)) || '(untitled)',
         publishedAt: e.published ?? e.updated,
         fetchedAt,
-        snippet: bound(textOf(e.summary) || textOf(e.content)),
+        snippet: decodeEntities(bound(textOf(e.summary) || textOf(e.content))),
         contentHash,
       }
       const parsedItem = RawItemSchema.safeParse(candidate)
