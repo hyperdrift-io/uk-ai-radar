@@ -4,6 +4,7 @@ import {
   type Filters,
   type MarkStatus,
   type ProfileInput,
+  ACTIVITY_LIMIT,
   type Workspace,
   emptyWorkspace,
   listItems,
@@ -91,6 +92,10 @@ export function useWorkspace() {
     return ws.value.brief
   }
 
+  function log(tool: string, summary: string) {
+    ws.value.activity = [{ tool, summary, at: new Date().toISOString() }, ...ws.value.activity].slice(0, ACTIVITY_LIMIT)
+  }
+
   function reset() {
     ws.value = emptyWorkspace()
   }
@@ -118,6 +123,7 @@ export function useWorkspace() {
     unmark,
     note,
     draftBrief,
+    log,
     reset,
   }
 }

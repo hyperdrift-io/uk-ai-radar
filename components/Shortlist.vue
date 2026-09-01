@@ -12,6 +12,13 @@ async function copy() {
 
 <template>
   <aside aria-label="Shortlist">
+    <section aria-label="Agent activity" aria-live="polite">
+      <h2>Your agent <output>{{ ws.activity.length ? 'on this page' : 'not here yet' }}</output></h2>
+      <p v-if="ws.activity.length === 0">Each thing it does on this page shows up here.</p>
+      <ol v-else>
+        <li v-for="a in ws.activity" :key="a.at"><code>{{ a.tool }}</code> {{ a.summary }}</li>
+      </ol>
+    </section>
     <h2>Shortlist <output>{{ picks.length }}</output></h2>
     <p v-if="picks.length === 0">Nothing yet. Shortlist an item below, or ask your agent to suggest what fits you.</p>
     <ol v-else>

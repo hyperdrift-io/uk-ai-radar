@@ -183,6 +183,11 @@ $govuk-assets-path: '/govuk-assets/';
   [data-mark='suggested'] { border-left-color: var(--blue); background: #eef5fb; }
   [data-mark='kept'] { border-left-color: var(--green); }
   [data-mark='aside'] { opacity: 0.7; }
+  section[data-flash] { animation: touched 1.6s ease-out; }
+  @keyframes touched {
+    0% { background: #fff2a8; box-shadow: 0 0 0 4px #ffdd00; }
+    100% { box-shadow: 0 0 0 0 transparent; }
+  }
 
   // The agent's read on an item — visibly the agent's voice, not the source's.
   blockquote {
@@ -195,7 +200,16 @@ $govuk-assets-path: '/govuk-assets/';
     &[data-fit='weak'] { border-left-color: var(--rule); }
   }
 
-  // Shortlist rail.
+  // Shortlist rail, with the agent's activity streaming at the top.
+  aside section[aria-label='Agent activity'] {
+    margin: 0 0 1rem;
+    padding: 0 0 0.75rem;
+    border-bottom: 1px solid var(--rule);
+    ol { list-style: none; padding: 0; margin: 0; max-height: 11rem; overflow: auto; font-size: 0.85rem; }
+    li { margin-bottom: 0.35rem; line-height: 1.35; animation: slide-in 0.4s ease-out; }
+    code { display: inline-block; font-size: 0.75rem; padding: 0 0.3rem; background: var(--paper); color: var(--blue); margin-right: 0.25rem; }
+  }
+  @keyframes slide-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
   aside {
     padding: 1rem 1.25rem;
     border: 1px solid var(--rule);

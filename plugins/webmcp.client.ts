@@ -53,6 +53,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         w.setFilters(filters)
         const matches = filterItems(items, filters)
         const limit = Math.min(200, Math.max(1, Number(input.limit) || 40))
+        w.log('search_items', `${matches.length} match${matches.length === 1 ? '' : 'es'}${filters.query ? ` for "${filters.query}"` : ''}${filters.kinds.length ? ` · ${filters.kinds.join(', ')}` : ''}${filters.deadline !== 'any' ? ` · ${filters.deadline}` : ''}`)
         return {
           total: matches.length,
           shown: Math.min(limit, matches.length),
@@ -71,6 +72,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       },
       async execute(input) {
         const item = await requireItem(input.url)
+        if (item) w.log('read_item', item.title)
         return item ? fullItem(item, w.ws.value) : fail('No item with that url on the radar.')
       },
     })
@@ -94,6 +96,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       async execute(input) {
         await onExplore()
         w.proposeProfile(input)
+        w.log('propose_founder_profile', `${w.ws.value.profile?.company ?? 'profile'} — waiting for you to keep it`)
         return { status: 'proposed', profile: w.ws.value.profile, next: 'The founder confirms the profile on the page.' }
       },
     })
@@ -117,6 +120,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         if (!item) return fail('No item with that url on the radar.')
         if (!FITS.includes(input.fit)) return fail(`fit must be one of ${FITS.join(', ')}.`)
         w.read(item.sourceUrl, { fit: input.fit, angle: String(input.angle), nextStep: String(input.nextStep) })
+        w.log('suggest_item', `${input.fit} fit · ${item.title}`)
         return { status: w.ws.value.marks[item.sourceUrl].status, shortlist: w.picks.value.length }
       },
     })
@@ -133,6 +137,7 @@ export default defineNuxtPlugin((nuxtApp) => {
         const item = await requireItem(input.url)
         if (!item) return fail('No item with that url on the radar.')
         w.mark(item.sourceUrl, 'aside', 'agent', String(input.reason))
+        w.log('set_aside_item', `${item.title} — ${input.reason}`)
         return { status: 'aside', listed: w.visible.value.length }
       },
     })
@@ -145,6 +150,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       async execute() {
         await onExplore()
         const ws = w.ws.value
+        w.log('read_workspace', `${w.picks.value.length} on the shortlist, ${w.aside.value.length} set aside`)
         return {
           profile: ws.profile,
           profileStatus: ws.profileStatus,
@@ -171,7 +177,9 @@ export default defineNuxtPlugin((nuxtApp) => {
               inputSchema: { type: 'object', properties: {} },
               async execute() {
                 await onExplore()
-                return { brief: w.draftBrief() }
+                const brief = w.draftBrief()
+                w.log('draft_brief', `${w.picks.value.length} item${w.picks.value.length === 1 ? '' : 's'} written up`)
+                return { brief }
               },
             },
             { signal: briefTool.signal },

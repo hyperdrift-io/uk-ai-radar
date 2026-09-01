@@ -43,7 +43,17 @@ export interface Mark {
   note?: string
 }
 
+/** One line per tool call — what the agent just did on the page, in the founder's words. */
+export interface Activity {
+  tool: string
+  summary: string
+  at: string
+}
+
+export const ACTIVITY_LIMIT = 12
+
 export interface Workspace {
+  activity: Activity[]
   profile: FounderProfile | null
   profileStatus: ProfileStatus
   filters: Filters
@@ -61,7 +71,7 @@ export function emptyFilters(): Filters {
 }
 
 export function emptyWorkspace(): Workspace {
-  return { profile: null, profileStatus: 'empty', filters: emptyFilters(), reads: {}, marks: {}, brief: null }
+  return { activity: [], profile: null, profileStatus: 'empty', filters: emptyFilters(), reads: {}, marks: {}, brief: null }
 }
 
 export function daysUntil(deadline: string | null, now: Date): number | null {

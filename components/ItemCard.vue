@@ -21,6 +21,15 @@ const read = computed(() => ws.value.reads[url.value] ?? null)
 const reason = computed(() => ws.value.marks[url.value]?.reason ?? null)
 const days = computed(() => daysUntil(props.item.deadline, new Date()))
 const severity = computed(() => (days.value === null ? null : days.value < 0 ? 'past' : days.value <= 14 ? 'critical' : days.value <= 30 ? 'soon' : 'ok'))
+// A short flash whenever the agent (or the founder) changes this card, so the change is seen.
+const flash = ref(false)
+let flashTimer: ReturnType<typeof setTimeout> | undefined
+watch([read, status], () => {
+  flash.value = true
+  clearTimeout(flashTimer)
+  flashTimer = setTimeout(() => (flash.value = false), 1600)
+})
+
 const noteText = computed({
   get: () => ws.value.marks[url.value]?.note ?? '',
   set: (v: string) => note(url.value, v),
@@ -28,7 +37,7 @@ const noteText = computed({
 </script>
 
 <template>
-  <section :data-kind="item.kind" :data-mark="status">
+  <section :data-kind="item.kind" :data-mark="status" :data-flash="flash || undefined">
     <header>
       <strong>{{ item.kind }}</strong>
       <time v-if="days !== null" :datetime="item.deadline ?? undefined" :data-severity="severity">
