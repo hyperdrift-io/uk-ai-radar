@@ -1,3 +1,4 @@
+import { requireAdmin } from '../utils/auth'
 import { writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { z } from 'zod'
@@ -22,6 +23,7 @@ const FormSchema = ProfileSchema.extend({
 })
 
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const raw = await readBody(event)
   const parsed = FormSchema.safeParse(raw)
   if (!parsed.success) {

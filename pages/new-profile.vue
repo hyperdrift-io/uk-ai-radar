@@ -28,6 +28,7 @@ const form = reactive<FormState>({
   exclude: '',
 })
 
+const accessCode = ref('')
 const submitting = ref(false)
 const generating = ref(false)
 const error = ref<string | null>(null)
@@ -57,15 +58,17 @@ async function save(then?: 'generate' | 'view') {
   error.value = null
   submitting.value = true
   try {
+    const headers = { 'x-radar-token': accessCode.value }
     const res = await $fetch<{ ok: true; slug: string }>('/api/profiles', {
       method: 'POST',
       body: form,
+      headers,
     })
     saved.value = true
     if (then === 'generate') {
       generating.value = true
       try {
-        await $fetch('/api/digest', { method: 'POST', body: { slug: res.slug } })
+        await $fetch('/api/digest', { method: 'POST', body: { slug: res.slug }, headers })
       } finally {
         generating.value = false
       }
@@ -96,6 +99,16 @@ async function save(then?: 'generate' | 'view') {
     </div>
 
     <form @submit.prevent="save('generate')" novalidate>
+      <div class="govuk-form-group">
+        <label class="govuk-label" for="access-code">Access code</label>
+        <div class="govuk-hint">
+          Generating a brief runs the radar's models for every item, so it is by request.
+          Ask <a class="govuk-link" href="mailto:yann@hyperdrift.io">yann@hyperdrift.io</a> for a code —
+          or run <code>pnpm digest</code> on your own machine with the open source.
+        </div>
+        <input class="govuk-input govuk-input--width-20" id="access-code" v-model="accessCode" type="password" autocomplete="off" />
+      </div>
+
       <div class="govuk-form-group">
         <label class="govuk-label" for="company">Profile name</label>
         <div class="govuk-hint">

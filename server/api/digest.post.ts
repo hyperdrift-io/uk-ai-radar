@@ -1,3 +1,4 @@
+import { requireAdmin } from '../utils/auth'
 import { readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { runRadar } from '../graph'
@@ -10,6 +11,7 @@ import { type Digest, DigestSchema, ProfileSchema } from '../utils/schemas'
  * 20–60s. The handler writes both .json and .md to digests/.
  */
 export default defineEventHandler(async (event) => {
+  requireAdmin(event)
   const { slug } = await readBody<{ slug?: string }>(event)
   if (!slug || typeof slug !== 'string') {
     throw createError({ statusCode: 400, statusMessage: 'slug required' })
