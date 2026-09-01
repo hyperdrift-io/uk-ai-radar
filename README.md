@@ -4,6 +4,12 @@
 
 Independent project. Not affiliated with HM Government.
 
+**Bring your agent.** Open [radar.hyperdrift.io/explore](https://radar.hyperdrift.io/explore)
+in a browser with an agent (ChatGPT's built-in browser, or Chrome with WebMCP enabled)
+and the agent works the page with you: it reads every item, proposes your profile,
+suggests what fits and why, and drafts the brief — you keep the final call on each.
+How it is built: [WEBMCP.md](./WEBMCP.md).
+
 ## Why
 
 UK AI founders need to track government direction (grants, tenders, consultations, policy shifts) but have no single feed personalised to their profile. The newsletter ecosystem is generic; gov.uk is exhaustive but undirected.
