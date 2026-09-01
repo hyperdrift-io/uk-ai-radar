@@ -53,17 +53,17 @@ Files:
 - `types/webmcp.d.ts` — local typing of the WebMCP imperative API.
 
 Also in the window: the MIT licence, a fix to the search SQL quoting, and the
-first full data run since May (100 live items).
+first full data runs since May (100 items, then 66 after dropping off-topic feeds and stale entries).
 
 ## Why WebMCP and not a backend MCP server
 
-The radar's value is judgement: which of a hundred government items matters
+The radar's value is judgement: which of the government items matters
 to *this* founder. Before, that judgement ran as a batch pipeline on our
 server, once a week, with a founder profile we had to hold. With WebMCP the
 judgement runs in the founder's own agent, on the page they are looking at,
 with context the page never sees (what they told their agent about their
 company, their pipeline, their week). The site keeps the data and the UI; the
-founder keeps their context; the agent reads all hundred items and the
+founder keeps their context; the agent reads every item and the
 founder decides. That split was not possible with a server-side integration.
 
 ## Trying it
