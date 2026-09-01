@@ -103,7 +103,7 @@ function matchesQuery(item: AnalysedItem, query: string): boolean {
   return q.split(/\s+/).every((word) => hay.includes(word))
 }
 
-/** Same semantics as the server search, run on the items the page already holds. */
+/** The one filter implementation: the page holds every item and narrows it here; the server only lists. */
 export function filterItems(items: AnalysedItem[], filters: Filters, now = new Date()): AnalysedItem[] {
   return items.filter(
     (item) =>

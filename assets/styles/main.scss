@@ -4,6 +4,23 @@ $govuk-assets-path: '/govuk-assets/';
 
 @import 'govuk-frontend/dist/govuk/all';
 
+// The document. GOV.UK palette as tokens; the design system's font stack for every page.
+:root {
+  --ink: #0b0c0c;
+  --muted: #505a5f;
+  --rule: #b1b4b6;
+  --paper: #f3f2f1;
+  --blue: #1d70b8;
+  --green: #00703c;
+  --red: #d4351c;
+  --orange: #f47738;
+  --purple: #4c2c92;
+  --turquoise: #28a197;
+  --pink: #d53880;
+  --focus: #ffdd00;
+}
+body { font-family: $govuk-font-family; color: var(--ink); }
+
 // Project-local additions — keep minimal, prefer Design System tokens.
 .site-header {
   background: govuk-colour('black');
@@ -37,7 +54,7 @@ $govuk-assets-path: '/govuk-assets/';
     color: govuk-colour('white');
     text-decoration: none;
 
-    &.router-link-active {
+    &[aria-current='page'] {
       text-decoration: underline;
       text-underline-offset: 4px;
     }
@@ -59,18 +76,6 @@ $govuk-assets-path: '/govuk-assets/';
 // GOV.UK palette, no design-system classes.
 // ---------------------------------------------------------------------------
 [data-page='explore'] {
-  --ink: #0b0c0c;
-  --muted: #505a5f;
-  --rule: #b1b4b6;
-  --paper: #f3f2f1;
-  --blue: #1d70b8;
-  --green: #00703c;
-  --red: #d4351c;
-  --orange: #f47738;
-  --purple: #4c2c92;
-  --turquoise: #28a197;
-  --pink: #d53880;
-  --focus: #ffdd00;
 
   display: grid;
   grid-template-columns: minmax(0, 1fr) 300px;
@@ -144,7 +149,7 @@ $govuk-assets-path: '/govuk-assets/';
     box-shadow: 0 2px 0 #929191;
     &:hover { background: #dbdad9; }
   }
-  button[value='kept'], button[value='copy'], aside footer button:first-child { background: var(--green); color: #fff; box-shadow: 0 2px 0 #002d18; }
+  button[value='kept'], button[value='copy'], button[value='draft'] { background: var(--green); color: #fff; box-shadow: 0 2px 0 #002d18; }
   button[value='reset'], button[value='clear'] { font-weight: 400; }
   footer { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 0.75rem; }
 
@@ -191,10 +196,10 @@ $govuk-assets-path: '/govuk-assets/';
   section[data-kind='policy'] > header strong { background: var(--blue); }
   section[data-kind='guidance'] > header strong { background: var(--pink); }
   section[data-kind='committee'] > header strong { background: var(--orange); }
-  [data-mark='suggested'] { border-left-color: var(--blue); background: #eef5fb; }
-  [data-mark='kept'] { border-left-color: var(--green); }
-  [data-mark='aside'] { opacity: 0.7; }
-  [data-mark='dropped'] { border-left-color: var(--rule); color: var(--muted); }
+  section[data-mark='suggested'] { border-left-color: var(--blue); background: #eef5fb; }
+  section[data-mark='kept'] { border-left-color: var(--green); }
+  section[data-mark='aside'] { opacity: 0.7; }
+  section[data-mark='dropped'] { border-left-color: var(--rule); color: var(--muted); }
   section[data-focus] { outline: 4px solid var(--focus); outline-offset: -4px; }
   section[data-flash] { animation: touched 1.6s ease-out; }
   @keyframes touched {
@@ -244,17 +249,6 @@ $govuk-assets-path: '/govuk-assets/';
 // title because the link is the point: every claim leads back to the page.
 // ---------------------------------------------------------------------------
 section[data-rank] {
-  --ink: #0b0c0c;
-  --muted: #505a5f;
-  --rule: #b1b4b6;
-  --paper: #f3f2f1;
-  --blue: #1d70b8;
-  --green: #00703c;
-  --red: #d4351c;
-  --orange: #f47738;
-  --purple: #4c2c92;
-  --turquoise: #28a197;
-  --pink: #d53880;
 
   padding: 1.5rem 0;
   border-bottom: 1px solid var(--rule);

@@ -6,7 +6,7 @@ import type {
 } from '../utils/schemas'
 
 /**
- * State threaded through the LangGraph pipeline.
+ * State threaded through the persona pipeline.
  *
  * - `profile` is read-only input.
  * - `rawItems` / `analysedItems` / `rankedItems` are written by successive personas.

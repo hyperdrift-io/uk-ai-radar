@@ -10,6 +10,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     if (!mc) return
     const w = useWorkspace()
     const router = useRouter()
+    w.hydrate()
 
     const onExplore = async () => {
       if (router.currentRoute.value.path !== '/explore') await router.push('/explore')
@@ -17,7 +18,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     }
 
     const { tools, briefTool } = defineAgentTools(w, onExplore)
-    for (const tool of tools) mc.registerTool(tool)
+    Promise.all(tools.map((tool) => mc.registerTool(tool))).catch((err) => {
+      console.error('[webmcp] tool registration failed', err)
+    })
 
     let briefRegistration: AbortController | null = null
     watch(
@@ -25,7 +28,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       (count) => {
         if (count > 0 && !briefRegistration) {
           briefRegistration = new AbortController()
-          mc.registerTool(briefTool, { signal: briefRegistration.signal })
+          mc.registerTool(briefTool, { signal: briefRegistration.signal }).catch((err) => console.error('[webmcp] draft_brief registration failed', err))
         } else if (count === 0 && briefRegistration) {
           briefRegistration.abort()
           briefRegistration = null

@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { mkdirSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import Database from 'better-sqlite3'
-import { type AnalysedItem, AnalysedItemSchema, type ItemKind } from './schemas'
+import { type AnalysedItem, AnalysedItemSchema } from './schemas'
 
 function defaultPath(): string {
   return join(process.cwd(), 'data', 'cache.sqlite')
@@ -63,7 +63,7 @@ export function hashContent(body: string): string {
  * stored hash for this URL, `false` if it is identical.
  *
  * Note: used at the FEED level for telemetry only. Per-item reuse goes through
- * `loadAnalysis` / `storeAnalysis` so the brief is always a full snapshot.
+ * `loadItem` / `storeItem` so the brief is always a full snapshot.
  */
 export function recordAndDiff(url: string, body: string): { changed: boolean; hash: string } {
   const hash = hashContent(body)
@@ -123,46 +123,13 @@ export function storeItem(item: AnalysedItem): void {
     )
 }
 
-export interface SearchFilters {
-  q?: string
-  kinds?: ItemKind[]
-  sources?: string[]
-  deadline?: 'open' | 'closing-soon' | 'closed' | 'any'
-  limit?: number
-}
-
-export function searchItems(filters: SearchFilters = {}): AnalysedItem[] {
-  const where: string[] = []
-  const params: (string | number)[] = []
-
-  if (filters.kinds && filters.kinds.length > 0) {
-    where.push(`kind IN (${filters.kinds.map(() => '?').join(',')})`)
-    params.push(...filters.kinds)
-  }
-  if (filters.sources && filters.sources.length > 0) {
-    where.push(`source_host IN (${filters.sources.map(() => '?').join(',')})`)
-    params.push(...filters.sources)
-  }
-  if (filters.deadline === 'open') {
-    where.push("(deadline IS NULL OR deadline >= date('now'))")
-  } else if (filters.deadline === 'closing-soon') {
-    where.push("deadline IS NOT NULL AND deadline >= date('now') AND deadline <= date('now', '+30 days')")
-  } else if (filters.deadline === 'closed') {
-    where.push("deadline IS NOT NULL AND deadline < date('now')")
-  }
-  if (filters.q) {
-    where.push('item_json LIKE ?')
-    params.push(`%${filters.q}%`)
-  }
-
-  const sql =
-    'SELECT item_json FROM analysed_items' +
-    (where.length ? ' WHERE ' + where.join(' AND ') : '') +
-    " ORDER BY COALESCE(deadline, '9999') ASC, analysed_at DESC" +
-    ' LIMIT ?'
-  params.push(filters.limit ?? 100)
-
-  const rows = db().prepare<typeof params, { item_json: string }>(sql).all(...params)
+/** Every analysed item, soonest deadline first, undated last. */
+export function listItems(limit = 100): AnalysedItem[] {
+  const rows = db()
+    .prepare<[number], { item_json: string }>(
+      "SELECT item_json FROM analysed_items ORDER BY COALESCE(deadline, '9999') ASC, analysed_at DESC LIMIT ?",
+    )
+    .all(limit)
   const out: AnalysedItem[] = []
   for (const r of rows) {
     try {

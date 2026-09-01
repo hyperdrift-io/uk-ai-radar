@@ -29,6 +29,7 @@ watch([read, status], () => {
   clearTimeout(flashTimer)
   flashTimer = setTimeout(() => (flash.value = false), 1600)
 })
+onUnmounted(() => clearTimeout(flashTimer))
 
 const reasonText = computed({
   get: () => ws.value.marks[url.value]?.reason ?? '',

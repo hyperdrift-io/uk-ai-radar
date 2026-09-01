@@ -216,7 +216,7 @@ async function save(then?: 'generate' | 'view') {
       </div>
 
       <p v-if="generating" class="govuk-body govuk-hint">
-        Fetching gov sources and ranking. This usually takes 20–60 seconds on first run.
+        Fetching gov sources and ranking. The analyst reads each source page, so a first run takes a few minutes.
       </p>
     </form>
 

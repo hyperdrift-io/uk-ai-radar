@@ -9,7 +9,8 @@ type Workspace = ReturnType<typeof useWorkspace>
  * Inputs come from a model, so every field is checked before use.
  */
 
-const str = (v: unknown): string => (typeof v === 'string' ? v.trim() : '')
+const MAX = 2000
+const str = (v: unknown): string => (typeof v === 'string' ? v.trim().slice(0, MAX) : '')
 const list = (v: unknown): string[] => (Array.isArray(v) ? v.map(str).filter(Boolean) : str(v) ? [str(v)] : [])
 const listSchema = (description: string) => ({ type: 'array', items: { type: 'string' }, description })
 const fail = (error: string) => ({ error })

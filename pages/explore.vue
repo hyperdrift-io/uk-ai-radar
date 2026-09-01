@@ -9,6 +9,7 @@ useSeoMeta({
 
 const { ws, sourceHosts, visible, loadItems, hydrate, setFilters, reset } = useWorkspace()
 const pending = ref(true)
+const failed = ref(false)
 const agentReady = ref(false)
 const copied = ref<string | null>(null)
 
@@ -27,9 +28,14 @@ async function copyPrompt(text: string) {
 
 onMounted(async () => {
   hydrate()
-  await loadItems()
-  pending.value = false
   agentReady.value = Boolean(document.modelContext)
+  try {
+    await loadItems()
+  } catch {
+    failed.value = true
+  } finally {
+    pending.value = false
+  }
 })
 
 function toggleKind(kind: ItemKind) {
@@ -93,6 +99,7 @@ const deadlineLabel: Record<DeadlineFilter, string> = {
 
     <section aria-label="Items">
       <p v-if="pending" role="status">Loading the radar…</p>
+      <p v-else-if="failed" role="alert">The radar did not load. Reload the page; if it keeps happening, the store behind it is down.</p>
       <template v-else>
         <p role="status"><output>{{ visible.length }}</output> item{{ visible.length === 1 ? '' : 's' }}</p>
         <p v-if="visible.length === 0">No items match. Widen the filters, or ask your agent to search differently.</p>

@@ -38,15 +38,29 @@ export function useWorkspace() {
     return items.value
   }
 
+  const hydrated = useState<boolean>('workspace-hydrated', () => false)
+
+  /** Load the saved workspace once per browser session; safe to call from any page or tool. */
   function hydrate() {
-    if (!import.meta.client) return
+    if (!import.meta.client || hydrated.value) return
+    hydrated.value = true
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (raw) ws.value = { ...emptyWorkspace(), ...JSON.parse(raw) }
     } catch {
       // A broken saved workspace is not worth breaking the page over.
     }
-    watch(ws, (value) => localStorage.setItem(STORAGE_KEY, JSON.stringify(value)), { deep: true })
+    watch(
+      ws,
+      (value) => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(value))
+        } catch {
+          // Storage full or blocked: the page keeps working for this visit.
+        }
+      },
+      { deep: true },
+    )
   }
 
   const byUrl = (url: string) => items.value.find((i) => i.sourceUrl === url) ?? null
@@ -100,8 +114,10 @@ export function useWorkspace() {
     ws.value.marks[url] = { ...current, status, by, reason }
   }
 
+  /** Forget everything about this item — the founder's mark and the agent's read. */
   function unmark(url: string) {
     delete ws.value.marks[url]
+    delete ws.value.reads[url]
   }
 
   function note(url: string, text: string) {

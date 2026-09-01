@@ -4,7 +4,11 @@ const copied = ref(false)
 
 async function copy() {
   if (!ws.value.brief) return
-  await navigator.clipboard.writeText(ws.value.brief)
+  try {
+    await navigator.clipboard.writeText(ws.value.brief)
+  } catch {
+    return // no clipboard here (insecure context); the brief is still on screen to select
+  }
   copied.value = true
   setTimeout(() => (copied.value = false), 2000)
 }
@@ -29,7 +33,7 @@ async function copy() {
     </ol>
     <p v-if="picks.length > 0"><small>Saved in this browser. Your agent can read it back any time; copy the brief to take it anywhere else.</small></p>
     <footer v-if="picks.length > 0">
-      <button type="button" @click="draftBrief">Draft brief</button>
+      <button type="button" value="draft" @click="draftBrief">Draft brief</button>
       <button v-if="ws.brief" type="button" value="copy" @click="copy">{{ copied ? 'Copied' : 'Copy brief' }}</button>
     </footer>
     <pre v-if="ws.brief">{{ ws.brief }}</pre>

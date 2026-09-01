@@ -23,7 +23,7 @@ useSeoMeta({ title: 'About — UK AI Radar' })
 
     <h2 class="govuk-heading-l">Methodology</h2>
     <ul class="govuk-list govuk-list--bullet">
-      <li>Diff-first retrieval — we re-fetch every tracked URL on each run but only forward items whose content hash changed.</li>
+      <li>Read once, reuse — every tracked feed is re-fetched each run; an item is only sent to the model again when its source changed.</li>
       <li>Structured extraction — every fact in a brief comes from a typed schema, not free-form prose.</li>
       <li>Personalised ranking — the same retrieved items are scored differently per founder profile.</li>
       <li>Source citation on every claim — no link, no claim.</li>

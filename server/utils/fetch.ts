@@ -57,6 +57,7 @@ export async function politeFetch(url: string, opts: FetchOptions = {}): Promise
   }
 
   const timeoutMs = opts.timeoutMs ?? 15_000
+  const MAX_BODY_CHARS = 2_000_000
   const maxAttempts = (opts.retries ?? 2) + 1
 
   let lastErr: unknown
@@ -70,8 +71,13 @@ export async function politeFetch(url: string, opts: FetchOptions = {}): Promise
           Accept: opts.accept ?? 'application/json, application/atom+xml, application/xml, text/html;q=0.9',
         },
         signal: controller.signal,
+        // A whitelisted host must not be able to send us elsewhere.
+        redirect: 'manual',
       })
       clearTimeout(t)
+      if (res.status >= 300 && res.status < 400) {
+        throw new Error(`fetch ${url} → ${res.status} redirect refused`)
+      }
       if (res.status >= 500 && attempt < maxAttempts) {
         await sleep(2 ** attempt * 250)
         continue
@@ -79,7 +85,11 @@ export async function politeFetch(url: string, opts: FetchOptions = {}): Promise
       if (!res.ok) {
         throw new Error(`fetch ${url} → ${res.status}`)
       }
-      return await res.text()
+      const text = await res.text()
+      if (text.length > MAX_BODY_CHARS) {
+        throw new Error(`fetch ${url} → body over ${MAX_BODY_CHARS} chars`)
+      }
+      return text
     } catch (err) {
       clearTimeout(t)
       lastErr = err

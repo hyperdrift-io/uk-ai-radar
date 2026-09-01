@@ -16,7 +16,7 @@ Enforced at `server/utils/fetch.ts`. Any URL not matching the allowed host suffi
 
 Adding a source = updating the whitelist + adding a source adapter under `server/sources/`.
 
-## Personas (LangGraph nodes)
+## Personas (pipeline stages)
 
 Each persona is a pure async function `(state) => Promise<Partial<state>>` under `server/graph/personas/`.
 

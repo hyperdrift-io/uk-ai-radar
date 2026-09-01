@@ -4,7 +4,7 @@ useSeoMeta({ title: 'Sources — UK AI Radar' })
 const sources = [
   {
     host: 'www.gov.uk',
-    description: 'DSIT, AISI, CMA, ICO announcements; consultations; policy papers.',
+    description: 'DSIT, AISI and departmental announcements; consultations; policy papers.',
     access: 'Public search API + RSS feeds.',
   },
   {
