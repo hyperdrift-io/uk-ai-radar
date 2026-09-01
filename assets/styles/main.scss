@@ -51,3 +51,163 @@ $govuk-assets-path: '/govuk-assets/';
   font-size: 0.875rem;
   color: govuk-colour('dark-grey');
 }
+
+// ---------------------------------------------------------------------------
+// Explore — the shared workspace. Founder and agent act on the same elements,
+// so state lives in attributes the markup already carries: data-status on the
+// profile form, data-mark / data-kind on each item, data-fit on the agent's read.
+// GOV.UK palette, no design-system classes.
+// ---------------------------------------------------------------------------
+[data-page='explore'] {
+  --ink: #0b0c0c;
+  --muted: #505a5f;
+  --rule: #b1b4b6;
+  --paper: #f3f2f1;
+  --blue: #1d70b8;
+  --green: #00703c;
+  --red: #d4351c;
+  --orange: #f47738;
+  --purple: #4c2c92;
+  --turquoise: #28a197;
+  --pink: #d53880;
+  --focus: #ffdd00;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  grid-template-areas: 'head head' 'profile side' 'filters side' 'items side';
+  column-gap: 2.5rem;
+  row-gap: 1.5rem;
+  color: var(--ink);
+
+  @media (max-width: 860px) {
+    grid-template-columns: 1fr;
+    grid-template-areas: 'head' 'profile' 'filters' 'side' 'items';
+  }
+
+  > header { grid-area: head; }
+  > form[aria-label='Founder profile'] { grid-area: profile; }
+  > form[aria-label='Filters'] { grid-area: filters; }
+  > aside { grid-area: side; align-self: start; position: sticky; top: 1rem; }
+  > section { grid-area: items; }
+
+  h1 { font-size: 3rem; font-weight: 700; margin: 0 0 0.75rem; }
+  h2 { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem; }
+  p { margin: 0 0 0.75rem; line-height: 1.5; }
+  small { color: var(--muted); font-size: 0.85rem; }
+  output { font-weight: 400; color: var(--muted); }
+
+  // Inputs and buttons carry the design; no classes needed for a plain form.
+  input:not([type='checkbox']), select, textarea {
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    padding: 0.4rem 0.5rem;
+    border: 2px solid var(--ink);
+    background: #fff;
+    &:focus { outline: 3px solid var(--focus); outline-offset: 0; box-shadow: inset 0 0 0 2px; }
+  }
+  input[type='checkbox'] { width: 1.1rem; height: 1.1rem; margin: 0 0.4rem 0 0; accent-color: var(--ink); }
+  label { display: block; font-weight: 700; margin-bottom: 0.6rem; }
+  label > input:not([type='checkbox']), label > select { font-weight: 400; margin-top: 0.25rem; }
+  fieldset { border: 0; padding: 0; margin: 0 0 0.75rem; }
+  legend { font-weight: 700; padding: 0; margin-bottom: 0.3rem; }
+  fieldset label { display: inline-flex; align-items: center; font-weight: 400; margin: 0 1rem 0.3rem 0; }
+
+  button, footer > a {
+    font: inherit;
+    font-weight: 700;
+    padding: 0.45rem 0.9rem;
+    border: 2px solid transparent;
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 2px 0 #002d18;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    &:hover { background: #005a30; }
+    &:focus { outline: 3px solid var(--focus); outline-offset: 0; }
+  }
+  button[type='button'], footer > a {
+    background: var(--paper);
+    color: var(--ink);
+    box-shadow: 0 2px 0 #929191;
+    &:hover { background: #dbdad9; }
+  }
+  button[value='kept'], button[value='copy'], aside footer button:first-child { background: var(--green); color: #fff; box-shadow: 0 2px 0 #002d18; }
+  button[value='reset'], button[value='clear'] { font-weight: 400; }
+  footer { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 0.75rem; }
+
+  // Founder profile: empty → proposed (agent filled it, founder checks) → set.
+  form[aria-label='Founder profile'] {
+    padding: 1rem 1.25rem;
+    border-left: 6px solid var(--rule);
+    background: var(--paper);
+    transition: border-color 0.3s, background 0.3s;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 1rem;
+    > h2, > p, > footer, > label:first-of-type { grid-column: 1 / -1; }
+    &[data-status='proposed'] { border-left-color: var(--blue); background: #eef5fb; }
+    &[data-status='proposed'] input { border-color: var(--blue); }
+    &[data-status='set'] { border-left-color: var(--green); }
+    p[role='status'] { color: var(--blue); font-weight: 700; }
+  }
+
+  form[aria-label='Filters'] { padding: 0 0 1rem; border-bottom: 1px solid var(--rule); }
+
+  // Items. The kind colours the tag; the mark colours the edge.
+  section[data-kind] {
+    padding: 1.25rem 0 1.25rem 1rem;
+    border-bottom: 1px solid var(--rule);
+    border-left: 6px solid transparent;
+    margin-left: -1rem;
+    transition: border-color 0.3s, background 0.3s;
+    > header { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.5rem; }
+    > header strong { text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; color: #fff; background: var(--muted); }
+    > header small { margin-left: auto; }
+    > header time { font-size: 0.9rem; }
+    > header time[data-severity='critical'] { color: var(--red); font-weight: 700; }
+    > header time[data-severity='soon'] { color: var(--orange); font-weight: 700; }
+    > header time[data-severity='past'] { color: var(--muted); text-decoration: line-through; }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 1rem; margin: 0 0 0.75rem; }
+    dt { font-weight: 700; }
+    dd { margin: 0; }
+    p[role='note'] { color: var(--muted); font-style: italic; }
+  }
+  section[data-kind='grant'] > header strong { background: var(--green); }
+  section[data-kind='tender'] > header strong { background: var(--turquoise); }
+  section[data-kind='consultation'] > header strong { background: var(--purple); }
+  section[data-kind='policy'] > header strong { background: var(--blue); }
+  section[data-kind='guidance'] > header strong { background: var(--pink); }
+  section[data-kind='committee'] > header strong { background: var(--orange); }
+  [data-mark='suggested'] { border-left-color: var(--blue); background: #eef5fb; }
+  [data-mark='kept'] { border-left-color: var(--green); }
+  [data-mark='aside'] { opacity: 0.7; }
+
+  // The agent's read on an item — visibly the agent's voice, not the source's.
+  blockquote {
+    margin: 0.75rem 0;
+    padding: 0.75rem 1rem;
+    border-left: 4px solid var(--blue);
+    background: #fff;
+    p { margin: 0 0 0.35rem; }
+    &[data-fit='strong'] { border-left-color: var(--green); }
+    &[data-fit='weak'] { border-left-color: var(--rule); }
+  }
+
+  // Shortlist rail.
+  aside {
+    padding: 1rem 1.25rem;
+    border: 1px solid var(--rule);
+    background: #fff;
+    ol, ul { padding-left: 1.2rem; margin: 0 0 0.5rem; }
+    li { margin-bottom: 0.5rem; }
+    li small { display: block; }
+    li[data-mark='suggested'] { color: var(--blue); }
+    li a { color: inherit; }
+    pre { white-space: pre-wrap; font-size: 0.8rem; max-height: 22rem; overflow: auto; background: var(--paper); padding: 0.75rem; margin: 0.75rem 0 0; }
+    details { margin-top: 1rem; }
+    summary { cursor: pointer; font-weight: 700; }
+    details button { font-weight: 400; padding: 0.15rem 0.5rem; box-shadow: none; }
+  }
+}

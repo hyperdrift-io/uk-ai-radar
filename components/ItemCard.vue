@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import type { AnalysedItem, ItemKind } from '~/server/utils/schemas'
-import { kindColor } from '~/server/utils/schemas'
+import { daysUntil } from '~/utils/workspace'
 
 const props = defineProps<{ item: AnalysedItem }>()
+const { ws, mark, unmark, note } = useWorkspace()
 
 const cta: Record<ItemKind, string> = {
   grant: 'View grant call',
@@ -14,93 +15,63 @@ const cta: Record<ItemKind, string> = {
   other: 'Read source',
 }
 
-const color = computed(() => kindColor(props.item.kind))
-
-const daysRemaining = computed<number | null>(() => {
-  if (!props.item.deadline) return null
-  return Math.ceil((new Date(props.item.deadline).getTime() - Date.now()) / 86_400_000)
-})
-
-const deadlineSeverity = computed<'critical' | 'soon' | 'ok' | 'past' | null>(() => {
-  const d = daysRemaining.value
-  if (d === null) return null
-  if (d < 0) return 'past'
-  if (d <= 14) return 'critical'
-  if (d <= 30) return 'soon'
-  return 'ok'
+const url = computed(() => props.item.sourceUrl)
+const status = computed(() => ws.value.marks[url.value]?.status ?? 'none')
+const read = computed(() => ws.value.reads[url.value] ?? null)
+const reason = computed(() => ws.value.marks[url.value]?.reason ?? null)
+const days = computed(() => daysUntil(props.item.deadline, new Date()))
+const severity = computed(() => (days.value === null ? null : days.value < 0 ? 'past' : days.value <= 14 ? 'critical' : days.value <= 30 ? 'soon' : 'ok'))
+const noteText = computed({
+  get: () => ws.value.marks[url.value]?.note ?? '',
+  set: (v: string) => note(url.value, v),
 })
 </script>
 
 <template>
-  <section class="item-card">
-    <header class="item-card__head">
-      <strong class="govuk-tag" :class="`govuk-tag--${color}`">{{ item.kind }}</strong>
-      <span v-if="daysRemaining !== null" class="item-card__deadline" :data-severity="deadlineSeverity">
-        <template v-if="deadlineSeverity === 'past'">Closed {{ -daysRemaining }}d ago</template>
-        <template v-else-if="daysRemaining === 0">Closes today</template>
-        <template v-else>Closes in <strong>{{ daysRemaining }}d</strong></template>
-      </span>
-      <span class="item-card__source">{{ item.sourceHost }}</span>
+  <section :data-kind="item.kind" :data-mark="status">
+    <header>
+      <strong>{{ item.kind }}</strong>
+      <time v-if="days !== null" :datetime="item.deadline ?? undefined" :data-severity="severity">
+        <template v-if="severity === 'past'">Closed {{ -days }}d ago</template>
+        <template v-else-if="days === 0">Closes today</template>
+        <template v-else>Closes in {{ days }}d</template>
+      </time>
+      <small>{{ item.sourceHost }}</small>
     </header>
 
-    <h2 class="govuk-heading-m item-card__title">{{ item.title }}</h2>
+    <h2>{{ item.title }}</h2>
+    <p>{{ item.summary }}</p>
 
-    <p class="govuk-body">{{ item.summary }}</p>
-
-    <dl class="govuk-summary-list govuk-summary-list--no-border item-card__meta">
-      <div v-if="item.amount" class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Amount</dt>
-        <dd class="govuk-summary-list__value">{{ item.amount }}</dd>
-      </div>
-      <div v-if="item.body" class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Body</dt>
-        <dd class="govuk-summary-list__value">{{ item.body }}</dd>
-      </div>
-      <div v-if="item.eligibility.length > 0" class="govuk-summary-list__row">
-        <dt class="govuk-summary-list__key">Eligibility</dt>
-        <dd class="govuk-summary-list__value">{{ item.eligibility.join('; ') }}</dd>
-      </div>
+    <dl v-if="item.amount || item.body || item.eligibility.length">
+      <template v-if="item.amount"><dt>Amount</dt><dd>{{ item.amount }}</dd></template>
+      <template v-if="item.body"><dt>Body</dt><dd>{{ item.body }}</dd></template>
+      <template v-if="item.eligibility.length"><dt>Eligibility</dt><dd>{{ item.eligibility.join('; ') }}</dd></template>
     </dl>
 
-    <a class="govuk-button" :href="item.sourceUrl" target="_blank" rel="noopener">
-      {{ cta[item.kind] }}
-    </a>
+    <blockquote v-if="read" :data-fit="read.fit">
+      <p><b>Your agent's read · {{ read.fit }} fit.</b> {{ read.angle }}</p>
+      <p><b>Next step.</b> {{ read.nextStep }}</p>
+    </blockquote>
+    <p v-if="status === 'aside' && reason" role="note">Set aside: {{ reason }}</p>
+
+    <label v-if="status === 'kept'">Your note <input v-model.lazy="noteText" name="note" placeholder="What to do with it, who to ask…" /></label>
+
+    <footer>
+      <a :href="item.sourceUrl" target="_blank" rel="noopener">{{ cta[item.kind] }}</a>
+      <template v-if="status === 'suggested'">
+        <button type="button" name="mark" value="kept" @click="mark(url, 'kept', 'founder')">Keep</button>
+        <button type="button" name="mark" value="drop" @click="unmark(url)">Drop</button>
+      </template>
+      <template v-else-if="status === 'kept'">
+        <button type="button" name="mark" value="drop" @click="unmark(url)">Remove from shortlist</button>
+      </template>
+      <template v-else-if="status === 'aside'">
+        <button type="button" name="mark" value="restore" @click="unmark(url)">Restore</button>
+      </template>
+      <template v-else>
+        <button type="button" name="mark" value="kept" @click="mark(url, 'kept', 'founder')">Shortlist</button>
+        <button type="button" name="mark" value="aside" @click="mark(url, 'aside', 'founder')">Set aside</button>
+      </template>
+    </footer>
   </section>
 </template>
-
-<style lang="scss" scoped>
-.item-card {
-  padding: 1.25rem 0;
-  border-bottom: 1px solid #b1b4b6;
-}
-
-.item-card__head {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.5rem;
-}
-
-.item-card__source {
-  margin-left: auto;
-  font-size: 0.85rem;
-  color: #505a5f;
-}
-
-.item-card__deadline {
-  font-size: 0.9rem;
-
-  &[data-severity='critical'] {
-    color: #d4351c;
-    font-weight: 700;
-  }
-  &[data-severity='soon'] {
-    color: #f47738;
-  }
-  &[data-severity='past'] {
-    color: #505a5f;
-    text-decoration: line-through;
-  }
-}
-</style>
