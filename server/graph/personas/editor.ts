@@ -3,6 +3,10 @@ import type { RadarState } from '../state'
 
 const FIT_FLOOR = 0.25
 const MAX_ITEMS = 15
+// Debates and reports are worth knowing about, not acting on. A brief that is
+// mostly "monitor this" is not a brief, so low-actionability items get a few slots.
+const SIGNAL_ACTIONABILITY = 0.2
+const MAX_SIGNAL_ITEMS = 3
 
 /**
  * Deterministic ranking:
@@ -45,8 +49,18 @@ export function editor(state: RadarState): Partial<RadarState> {
     }
   }
 
-  const sorted = [...byId.values()]
+  // Dedupe near-identical titles too (Hansard runs the same debate title on several days).
+  const byTitle = new Map<string, RankedItem>()
+  for (const item of byId.values()) {
+    const key = item.title.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim()
+    const existing = byTitle.get(key)
+    if (!existing || composite(item) > composite(existing)) byTitle.set(key, item)
+  }
+
+  let signalItems = 0
+  const sorted = [...byTitle.values()]
     .sort((a, b) => composite(b) - composite(a))
+    .filter((item) => item.actionability >= SIGNAL_ACTIONABILITY || signalItems++ < MAX_SIGNAL_ITEMS)
     .slice(0, MAX_ITEMS)
     .map((item, idx) => ({ ...item, rank: idx + 1 }))
 

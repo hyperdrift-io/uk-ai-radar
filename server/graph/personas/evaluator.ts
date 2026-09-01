@@ -61,7 +61,9 @@ function evaluateItem(item: RankedItem, profile: Profile): Quality {
   if (item.eligibility.length === 0 && (item.kind === 'grant' || item.kind === 'tender'))
     flags.push('no-eligibility')
   if (item.summary.trim().length < 60) flags.push('thin-summary')
-  if (citationGrounding < 0.25) flags.push('angle-not-grounded')
+  // An angle is a few sentences about the founder; a quarter of its words rarely
+  // come from the source. Flag only angles that barely touch the item.
+  if (citationGrounding < 0.12) flags.push('angle-not-grounded')
   if (profileCoherence < 0.1) flags.push('angle-ignores-profile')
 
   const actionableKind = item.kind === 'grant' || item.kind === 'tender' || item.kind === 'consultation'

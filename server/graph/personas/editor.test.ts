@@ -51,6 +51,7 @@ describe('editor', () => {
     // b has lower fit but imminent deadline.
     const b = make({
       id: 'b',
+      title: 'another item',
       fitScore: 0.5,
       actionability: 0.5,
       deadline: new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10),
@@ -59,6 +60,16 @@ describe('editor', () => {
     const out = editor(state)
     expect(out.rankedItems!.map((i) => i.id)).toEqual(['a', 'b'])
     expect(out.rankedItems!.map((i) => i.rank)).toEqual([1, 2])
+  })
+
+  it('keeps at most three low-actionability signal items and dedupes repeated titles', () => {
+    const debates = ['a', 'b', 'c', 'd', 'e'].map((id) =>
+      make({ id, title: `Artificial Intelligence: Legislation ${id}`, fitScore: 0.5, actionability: 0.1 }),
+    )
+    const repeat = make({ id: 'f', title: 'Artificial Intelligence: Legislation a', fitScore: 0.4, actionability: 0.1 })
+    const grant = make({ id: 'g', title: 'Grant', fitScore: 0.5, actionability: 0.8 })
+    const out = editor({ ...initialState(profile), rankedItems: [...debates, repeat, grant] })
+    expect(out.rankedItems!.map((i) => i.id)).toEqual(['g', 'a', 'b', 'c'])
   })
 
   it('dedupes by id keeping the higher composite', () => {
