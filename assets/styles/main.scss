@@ -225,3 +225,58 @@ $govuk-assets-path: '/govuk-assets/';
     details button { font-weight: 400; padding: 0.15rem 0.5rem; box-shadow: none; }
   }
 }
+
+// ---------------------------------------------------------------------------
+// Brief — one ranked item per section. The source citation sits under the
+// title because the link is the point: every claim leads back to the page.
+// ---------------------------------------------------------------------------
+section[data-rank] {
+  --ink: #0b0c0c;
+  --muted: #505a5f;
+  --rule: #b1b4b6;
+  --paper: #f3f2f1;
+  --blue: #1d70b8;
+  --green: #00703c;
+  --red: #d4351c;
+  --orange: #f47738;
+  --purple: #4c2c92;
+  --turquoise: #28a197;
+  --pink: #d53880;
+
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+
+  > header { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+  > header strong { text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.04em; padding: 0.15rem 0.5rem; color: #fff; background: var(--muted); }
+  > header time { font-size: 0.95rem; }
+  > header time[data-severity='critical'] { color: var(--red); font-weight: 700; }
+  > header time[data-severity='soon'] { color: var(--orange); font-weight: 700; }
+  > header time[data-severity='past'] { color: var(--muted); text-decoration: line-through; }
+  > header output { margin-left: auto; font-weight: 700; color: var(--muted); }
+
+  h2 { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.25rem; line-height: 1.2; }
+  cite { display: block; font-style: normal; font-size: 0.9rem; margin-bottom: 0.9rem; }
+  cite a { color: var(--blue); }
+  cite a::before { content: '↗ '; }
+  > p { font-size: 1.1rem; line-height: 1.5; margin: 0 0 0.9rem; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1.25rem; margin: 0 0 0.6rem; line-height: 1.45; }
+  dt { font-weight: 700; }
+  dd { margin: 0; }
+  > small { display: block; color: var(--muted); margin-bottom: 0.6rem; }
+  &[data-read='page'] > small::before { content: '● '; color: var(--green); }
+  ul { margin: 0 0 0.9rem; padding: 0.6rem 0.9rem 0.6rem 2rem; background: #fff7bf; border-left: 4px solid var(--orange); font-size: 0.9rem; }
+  li + li { margin-top: 0.25rem; }
+  footer a {
+    display: inline-block; font-weight: 700; padding: 0.45rem 0.9rem; text-decoration: none;
+    background: var(--green); color: #fff; box-shadow: 0 2px 0 #002d18;
+    &:hover { background: #005a30; }
+    &:focus { outline: 3px solid #ffdd00; outline-offset: 0; }
+  }
+  &[data-kind='grant'] > header strong { background: var(--green); }
+  &[data-kind='tender'] > header strong { background: var(--turquoise); }
+  &[data-kind='consultation'] > header strong { background: var(--purple); }
+  &[data-kind='policy'] > header strong { background: var(--blue); }
+  &[data-kind='guidance'] > header strong { background: var(--pink); }
+  &[data-kind='committee'] > header strong { background: var(--orange); }
+}

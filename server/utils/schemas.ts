@@ -66,6 +66,10 @@ export const AnalysedItemSchema = RawItemSchema.extend({
   amount: z.string().nullable().describe('e.g. "up to £500k" — verbatim from source if present'),
   eligibility: z.array(z.string()).default([]),
   summary: z.string().describe('neutral 1–2 sentence factual summary'),
+  readDepth: z
+    .enum(['page', 'feed'])
+    .optional()
+    .describe('"page" when the analyst read the full source page; "feed" when only the feed entry was available'),
 })
 export type AnalysedItem = z.infer<typeof AnalysedItemSchema>
 

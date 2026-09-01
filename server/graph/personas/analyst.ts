@@ -5,6 +5,7 @@ import {
   type RawItem,
 } from '../../utils/schemas'
 import { extractStructured } from '../../utils/llm'
+import { readSourcePage } from '../../utils/page'
 import type { RadarState } from '../state'
 
 const SYSTEM = `You are the Analyst persona of UK AI Radar.
@@ -19,19 +20,22 @@ Rules:
 - "kind" must reflect the primary nature of the document.
 - "summary" is one or two neutral factual sentences.`
 
-function userPrompt(item: RawItem): string {
+function userPrompt(item: RawItem, page: string | null): string {
   return [
     `Source: ${item.sourceHost}`,
     `URL: ${item.sourceUrl}`,
     `Title: ${item.title}`,
     item.publishedAt ? `Published: ${item.publishedAt}` : '',
     '',
-    'Extract:',
-    item.snippet || '(no snippet available — use title only)',
+    page ? 'Source page (main content):' : 'Feed extract:',
+    page ?? item.snippet ?? '(no extract available — use title only)',
   ]
     .filter(Boolean)
     .join('\n')
 }
+
+/** What the brief and the explore page show as the source extract: the page when we have it. */
+const EXTRACT_LIMIT = 1500
 
 export async function analyst(state: RadarState): Promise<Partial<RadarState>> {
   const analysed: AnalysedItem[] = []
@@ -47,16 +51,23 @@ export async function analyst(state: RadarState): Promise<Partial<RadarState>> {
     }
 
     try {
+      // The feed entry hints; the page states the closing date, the money and who can apply.
+      const page = await readSourcePage(item.sourceUrl)
       const extraction = await extractStructured({
         system: SYSTEM,
-        user: userPrompt(item),
+        user: userPrompt(item, page),
         schema: AnalystExtractionSchema,
         toolName: 'record_item',
         toolDescription: 'Record the structured analysis of a single UK gov source item.',
         maxTokens: 600,
       })
       llmCalls++
-      const full: AnalysedItem = { ...item, ...extraction }
+      const full: AnalysedItem = {
+        ...item,
+        snippet: page ? page.slice(0, EXTRACT_LIMIT) : item.snippet,
+        ...extraction,
+        readDepth: page ? 'page' : 'feed',
+      }
       storeItem(full)
       analysed.push(full)
     } catch (err) {
