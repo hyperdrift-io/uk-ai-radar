@@ -23,7 +23,7 @@ const { data: briefs } = await useFetch('/api/briefs')
     <p class="govuk-body">
       Open <NuxtLink to="/explore" class="govuk-link">Explore</NuxtLink> in a browser with an agent — ChatGPT's
       built-in browser, or Chrome with WebMCP switched on — and the page offers the agent its own controls.
-      It reads all hundred items; you keep the final call on every one it suggests.
+      It reads every item; you keep the final call on every one it suggests.
     </p>
 
     <h2 class="govuk-heading-l">How it works</h2>
