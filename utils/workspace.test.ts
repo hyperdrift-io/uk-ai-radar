@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { AnalysedItem } from '../server/utils/schemas'
-import { compactItem, emptyWorkspace, filterItems, listItems, normaliseProfile, renderBrief, shortlist } from './workspace'
+import { compactItem, dropped, emptyWorkspace, filterItems, listItems, normaliseProfile, renderBrief, shortlist } from './workspace'
 
 const now = new Date('2026-09-02T00:00:00Z')
 
@@ -48,6 +48,13 @@ describe('marks', () => {
     ws.marks[closed.sourceUrl] = { status: 'aside', by: 'agent', reason: 'closed' }
     expect(listItems([grant, policy, closed], ws, now)).toEqual([grant, policy])
     expect(shortlist([grant, policy, closed], ws).map((i) => i.title)).toEqual([policy.title, grant.title])
+  })
+  it('keeps dropped suggestions in the list but out of the shortlist, with the reason', () => {
+    const ws = emptyWorkspace()
+    ws.marks[grant.sourceUrl] = { status: 'dropped', by: 'founder', reason: 'universities only' }
+    expect(listItems([grant, policy], ws, now)).toEqual([grant, policy])
+    expect(shortlist([grant, policy], ws)).toEqual([])
+    expect(dropped([grant, policy], ws)).toEqual([grant])
   })
 })
 

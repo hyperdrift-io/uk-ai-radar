@@ -34,7 +34,7 @@ replacing it.
 | `read_item` | Returns one item in full, including what the founder and the agent have already noted on it. |
 | `propose_founder_profile` | Fills the profile form from what the agent knows about the founder. The form is highlighted as *proposed* until the founder keeps it. |
 | `suggest_item` | Puts an item on the shortlist as the agent's suggestion, with a fit level, the angle and the next step. The founder keeps or drops it with one click. |
-| `set_aside_item` | Moves an item out of the list with a reason. The founder can restore it. |
+| `set_aside_items` | Moves one or many items out of the list with one reason. The founder can restore any of them. |
 | `read_workspace` | Returns the shared state: profile and whether it was confirmed, filters, shortlist with the founder's decisions and notes, what was set aside, the brief. |
 | `draft_brief` | Registered only while the shortlist has items (the page fires `toolchange`). Writes the shortlist up as a markdown brief and shows it. |
 

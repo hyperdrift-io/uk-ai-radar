@@ -8,7 +8,7 @@ import type { AnalysedItem, ItemKind } from '~/server/utils/schemas'
 
 export type Fit = 'strong' | 'possible' | 'weak'
 export type DeadlineFilter = 'any' | 'open' | 'closing-soon' | 'closed'
-export type MarkStatus = 'suggested' | 'kept' | 'aside'
+export type MarkStatus = 'suggested' | 'kept' | 'dropped' | 'aside'
 export type ProfileStatus = 'empty' | 'proposed' | 'set'
 
 export interface Filters {
@@ -35,7 +35,10 @@ export interface AgentRead {
   at: string
 }
 
-/** What the founder (or the agent, pending the founder's call) did with one item. */
+/**
+ * What the founder (or the agent, pending the founder's call) did with one item.
+ * `reason` is the why behind a drop or a set-aside — the agent reads it back and adapts.
+ */
 export interface Mark {
   status: MarkStatus
   by: 'founder' | 'agent'
@@ -125,6 +128,11 @@ export function shortlist(items: AnalysedItem[], ws: Workspace): AnalysedItem[] 
 
 export function setAside(items: AnalysedItem[], ws: Workspace): AnalysedItem[] {
   return items.filter((item) => ws.marks[item.sourceUrl]?.status === 'aside')
+}
+
+/** Suggestions the founder turned down, with their reasons — the agent's most useful signal. */
+export function dropped(items: AnalysedItem[], ws: Workspace): AnalysedItem[] {
+  return items.filter((item) => ws.marks[item.sourceUrl]?.status === 'dropped')
 }
 
 /** The short form an agent reads in bulk. */

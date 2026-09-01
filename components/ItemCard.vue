@@ -3,7 +3,7 @@ import type { AnalysedItem, ItemKind } from '~/server/utils/schemas'
 import { daysUntil } from '~/utils/workspace'
 
 const props = defineProps<{ item: AnalysedItem }>()
-const { ws, mark, unmark, note } = useWorkspace()
+const { ws, focus, mark, unmark, drop, reason: setReason, note } = useWorkspace()
 
 const cta: Record<ItemKind, string> = {
   grant: 'View grant call',
@@ -30,6 +30,11 @@ watch([read, status], () => {
   flashTimer = setTimeout(() => (flash.value = false), 1600)
 })
 
+const reasonText = computed({
+  get: () => ws.value.marks[url.value]?.reason ?? '',
+  set: (v: string) => setReason(url.value, v),
+})
+
 const noteText = computed({
   get: () => ws.value.marks[url.value]?.note ?? '',
   set: (v: string) => note(url.value, v),
@@ -37,7 +42,7 @@ const noteText = computed({
 </script>
 
 <template>
-  <section :data-kind="item.kind" :data-mark="status" :data-flash="flash || undefined">
+  <section :data-kind="item.kind" :data-mark="status" :data-flash="flash || undefined" :data-focus="focus === url || undefined">
     <header>
       <strong>{{ item.kind }}</strong>
       <time v-if="days !== null" :datetime="item.deadline ?? undefined" :data-severity="severity">
@@ -64,12 +69,17 @@ const noteText = computed({
     <p v-if="status === 'aside' && reason" role="note">Set aside: {{ reason }}</p>
 
     <label v-if="status === 'kept'">Your note <input v-model.lazy="noteText" name="note" placeholder="What to do with it, who to ask…" /></label>
+    <label v-if="status === 'dropped'">Dropped. Tell your agent why <input v-model.lazy="reasonText" name="reason" placeholder="e.g. universities only, we're a company" /></label>
 
     <footer>
       <a :href="item.sourceUrl" target="_blank" rel="noopener">{{ cta[item.kind] }}</a>
       <template v-if="status === 'suggested'">
         <button type="button" name="mark" value="kept" @click="mark(url, 'kept', 'founder')">Keep</button>
-        <button type="button" name="mark" value="drop" @click="unmark(url)">Drop</button>
+        <button type="button" name="mark" value="drop" @click="drop(url)">Drop</button>
+      </template>
+      <template v-else-if="status === 'dropped'">
+        <button type="button" name="mark" value="kept" @click="mark(url, 'kept', 'founder')">Shortlist after all</button>
+        <button type="button" name="mark" value="restore" @click="unmark(url)">Forget it</button>
       </template>
       <template v-else-if="status === 'kept'">
         <button type="button" name="mark" value="drop" @click="unmark(url)">Remove from shortlist</button>

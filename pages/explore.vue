@@ -10,6 +10,20 @@ useSeoMeta({
 const { ws, sourceHosts, visible, loadItems, hydrate, setFilters, reset } = useWorkspace()
 const pending = ref(true)
 const agentReady = ref(false)
+const copied = ref<string | null>(null)
+
+// What to say to the agent — the first ten seconds decide whether a visitor tries it.
+const prompts = [
+  'Set up my profile on this page from what you know about my company.',
+  'Go through everything on the radar and shortlist what we should act on this month, with why and the next step.',
+  'Read what I kept and dropped, then draft the brief.',
+]
+
+async function copyPrompt(text: string) {
+  await navigator.clipboard.writeText(text)
+  copied.value = text
+  setTimeout(() => (copied.value = null), 1500)
+}
 
 onMounted(async () => {
   hydrate()
@@ -45,6 +59,11 @@ const deadlineLabel: Record<DeadlineFilter, string> = {
         <template v-if="agentReady">Your agent can see this page too: it reads all of it, you keep the final call.</template>
         <template v-else>Open this page in a browser with an agent (ChatGPT's browser, or Chrome with WebMCP on) and the agent works it with you.</template>
       </p>
+      <ul v-if="agentReady" aria-label="Ask your agent">
+        <li v-for="p in prompts" :key="p">
+          <button type="button" name="prompt" :aria-pressed="copied === p" @click="copyPrompt(p)">{{ copied === p ? 'Copied — paste it to your agent' : p }}</button>
+        </li>
+      </ul>
     </header>
 
     <FounderProfileCard />

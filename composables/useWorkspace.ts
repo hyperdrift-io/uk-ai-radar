@@ -6,6 +6,7 @@ import {
   type ProfileInput,
   ACTIVITY_LIMIT,
   type Workspace,
+  dropped as droppedItems,
   emptyWorkspace,
   listItems,
   normaliseProfile,
@@ -25,6 +26,8 @@ export function useWorkspace() {
   const items = useState<AnalysedItem[]>('items', () => [])
   const sourceHosts = useState<string[]>('sourceHosts', () => [])
   const loaded = useState<boolean>('items-loaded', () => false)
+  // The card the agent is looking at right now — page state, not saved.
+  const focus = useState<string | null>('focus', () => null)
 
   async function loadItems(): Promise<AnalysedItem[]> {
     if (loaded.value) return items.value
@@ -70,7 +73,26 @@ export function useWorkspace() {
   function read(url: string, read: Omit<AgentRead, 'at'>) {
     ws.value.reads[url] = { ...read, at: new Date().toISOString() }
     const current = ws.value.marks[url]
-    if (!current || current.status === 'aside') ws.value.marks[url] = { status: 'suggested', by: 'agent' }
+    // A kept item stays kept; anything else becomes a fresh suggestion for the founder to judge.
+    if (current?.status !== 'kept') ws.value.marks[url] = { status: 'suggested', by: 'agent' }
+  }
+
+  function drop(url: string, reason?: string) {
+    const current = ws.value.marks[url]
+    ws.value.marks[url] = { ...current, status: 'dropped', by: 'founder', reason: reason?.trim() || current?.reason }
+  }
+
+  function reason(url: string, text: string) {
+    const current = ws.value.marks[url]
+    if (current) ws.value.marks[url] = { ...current, reason: text.trim() || undefined }
+  }
+
+  async function setFocus(url: string | null) {
+    focus.value = url
+    if (!url || !import.meta.client) return
+    await nextTick()
+    const item = byUrl(url)
+    if (item) document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
   }
 
   function mark(url: string, status: MarkStatus, by: 'founder' | 'agent', reason?: string) {
@@ -103,6 +125,7 @@ export function useWorkspace() {
   const visible = computed(() => listItems(items.value, ws.value))
   const picks = computed(() => shortlist(items.value, ws.value))
   const aside = computed(() => setAside(items.value, ws.value))
+  const drops = computed(() => droppedItems(items.value, ws.value))
 
   return {
     ws,
@@ -111,6 +134,8 @@ export function useWorkspace() {
     visible,
     picks,
     aside,
+    drops,
+    focus,
     loadItems,
     hydrate,
     byUrl,
@@ -121,7 +146,10 @@ export function useWorkspace() {
     read,
     mark,
     unmark,
+    drop,
+    reason,
     note,
+    setFocus,
     draftBrief,
     log,
     reset,
