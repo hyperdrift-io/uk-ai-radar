@@ -15,6 +15,15 @@ export default defineNuxtConfig({
           content:
             'Independent project. We read gov.uk, UKRI and Parliament so AI founders see grants, tenders, consultations and policy shifts that matter — ranked for their profile.',
         },
+        { property: 'og:title', content: 'UK AI Radar — read the government with your agent' },
+        {
+          property: 'og:description',
+          content: 'Every UK government item that matters to an AI founder, on one page you and your agent work together. It reads all of it; you keep the final call.',
+        },
+        { property: 'og:image', content: 'https://radar.hyperdrift.io/images/og.png' },
+        { property: 'og:type', content: 'website' },
+        { name: 'twitter:card', content: 'summary_large_image' },
+        { name: 'twitter:image', content: 'https://radar.hyperdrift.io/images/og.png' },
       ],
     },
   },
