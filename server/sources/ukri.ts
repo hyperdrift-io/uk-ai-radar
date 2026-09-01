@@ -50,13 +50,14 @@ export async function scoutUkri(): Promise<ScoutResult> {
     const url = e.link
     if (!url || !url.includes('ukri.org/opportunity/')) continue
 
-    const contentHash = hashContent(JSON.stringify({ t: e.title, p: e.pubDate }))
+    const title = decodeEntities(e.title ?? '')
+    const contentHash = hashContent(JSON.stringify({ t: title, p: e.pubDate }))
 
     const candidate: RawItem = {
       id: contentHash.slice(0, 16),
       sourceHost: 'www.ukri.org',
       sourceUrl: url,
-      title: decodeEntities(e.title ?? '') || '(untitled)',
+      title: title || '(untitled)',
       publishedAt: e.pubDate ? new Date(e.pubDate).toISOString() : undefined,
       fetchedAt,
       snippet: decodeEntities(bound(e.description ?? '')),
