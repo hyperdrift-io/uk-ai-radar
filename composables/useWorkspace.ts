@@ -75,8 +75,10 @@ export function useWorkspace() {
   }
 
   function confirmProfile(input: ProfileInput) {
+    const wasProposed = ws.value.profileStatus === 'proposed'
     ws.value.profile = normaliseProfile(input)
     ws.value.profileStatus = 'set'
+    track('profile_confirmed', { proposed_by_agent: wasProposed })
   }
 
   function clearProfile() {
@@ -94,6 +96,7 @@ export function useWorkspace() {
   function drop(url: string, reason?: string) {
     const current = ws.value.marks[url]
     ws.value.marks[url] = { ...current, status: 'dropped', by: 'founder', reason: reason?.trim() || current?.reason }
+    track('founder_marked', { status: 'dropped', was_suggested: current?.status === 'suggested' })
   }
 
   function reason(url: string, text: string) {
@@ -112,6 +115,7 @@ export function useWorkspace() {
   function mark(url: string, status: MarkStatus, by: 'founder' | 'agent', reason?: string) {
     const current = ws.value.marks[url]
     ws.value.marks[url] = { ...current, status, by, reason }
+    if (by === 'founder') track('founder_marked', { status, was_suggested: current?.status === 'suggested' })
   }
 
   /** Forget everything about this item — the founder's mark and the agent's read. */
@@ -127,11 +131,18 @@ export function useWorkspace() {
 
   function draftBrief(): string {
     ws.value.brief = renderBrief(items.value, ws.value)
+    track('brief_drafted', { items: picks.value.length })
     return ws.value.brief
+  }
+
+  const { $track } = useNuxtApp()
+  const track = (event: string, props?: Record<string, unknown>) => {
+    if (typeof $track === 'function') $track(event, props)
   }
 
   function log(tool: string, summary: string) {
     ws.value.activity = [{ tool, summary, at: new Date().toISOString() }, ...ws.value.activity].slice(0, ACTIVITY_LIMIT)
+    track('agent_tool_called', { tool })
   }
 
   function reset() {

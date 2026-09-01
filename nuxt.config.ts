@@ -1,5 +1,12 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
+  runtimeConfig: {
+    public: {
+      // Set NUXT_PUBLIC_POSTHOG_KEY in the environment to switch analytics on; empty = off.
+      posthogKey: '',
+      posthogHost: 'https://eu.i.posthog.com',
+    },
+  },
   ssr: true,
   devtools: { enabled: true },
   typescript: { strict: true },
