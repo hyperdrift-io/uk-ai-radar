@@ -144,11 +144,11 @@ export function searchItems(filters: SearchFilters = {}): AnalysedItem[] {
     params.push(...filters.sources)
   }
   if (filters.deadline === 'open') {
-    where.push('(deadline IS NULL OR deadline >= date("now"))')
+    where.push("(deadline IS NULL OR deadline >= date('now'))")
   } else if (filters.deadline === 'closing-soon') {
-    where.push('deadline IS NOT NULL AND deadline >= date("now") AND deadline <= date("now", "+30 days")')
+    where.push("deadline IS NOT NULL AND deadline >= date('now') AND deadline <= date('now', '+30 days')")
   } else if (filters.deadline === 'closed') {
-    where.push('deadline IS NOT NULL AND deadline < date("now")')
+    where.push("deadline IS NOT NULL AND deadline < date('now')")
   }
   if (filters.q) {
     where.push('item_json LIKE ?')
@@ -158,7 +158,7 @@ export function searchItems(filters: SearchFilters = {}): AnalysedItem[] {
   const sql =
     'SELECT item_json FROM analysed_items' +
     (where.length ? ' WHERE ' + where.join(' AND ') : '') +
-    ' ORDER BY COALESCE(deadline, "9999") ASC, analysed_at DESC' +
+    " ORDER BY COALESCE(deadline, '9999') ASC, analysed_at DESC" +
     ' LIMIT ?'
   params.push(filters.limit ?? 100)
 
