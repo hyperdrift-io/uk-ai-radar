@@ -21,13 +21,13 @@ async function copy() {
     </section>
     <h2>Shortlist <output>{{ picks.length }}</output></h2>
     <p v-if="picks.length === 0">Nothing yet. Shortlist an item below, or ask your agent to suggest what fits you.</p>
-    <p v-else><small>Saved in this browser. Your agent can read it back any time; copy the brief to take it anywhere else.</small></p>
     <ol v-else>
       <li v-for="item in picks" :key="item.sourceUrl" :data-mark="ws.marks[item.sourceUrl].status">
         <a :href="`#${item.id}`">{{ item.title }}</a>
         <small v-if="ws.marks[item.sourceUrl].status === 'suggested'">suggested by your agent</small>
       </li>
     </ol>
+    <p v-if="picks.length > 0"><small>Saved in this browser. Your agent can read it back any time; copy the brief to take it anywhere else.</small></p>
     <footer v-if="picks.length > 0">
       <button type="button" @click="draftBrief">Draft brief</button>
       <button v-if="ws.brief" type="button" value="copy" @click="copy">{{ copied ? 'Copied' : 'Copy brief' }}</button>
