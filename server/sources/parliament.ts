@@ -61,7 +61,8 @@ export async function scoutParliament(): Promise<ScoutResult> {
       sourceHost: 'hansard.parliament.uk',
       sourceUrl: url,
       title: r.Title,
-      publishedAt: r.SittingDate,
+      // Hansard dates carry no timezone; the schema wants an instant.
+      publishedAt: r.SittingDate ? (/[Zz]|[+-]\d\d:\d\d$/.test(r.SittingDate) ? r.SittingDate : `${r.SittingDate}Z`) : undefined,
       fetchedAt,
       snippet: r.Snippet ?? r.DebateSection ?? '',
       contentHash,

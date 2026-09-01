@@ -3,16 +3,16 @@
   "company": "Example AI Ltd",
   "stage": "seed",
   "geo": "United Kingdom",
-  "sectors": ["construction", "field operations", "engineering"],
-  "capabilities": ["LLM agents", "computer vision", "edge inference"],
+  "sectors": ["healthcare", "regulated industries", "public sector"],
+  "capabilities": ["LLM agents", "AI evaluation and assurance tooling", "medical imaging models"],
   "trlBand": "prototype",
   "goals": [
     "secure non-dilutive funding in the next 12 months",
-    "win first public sector pilot",
-    "stay ahead of upcoming AI compliance requirements"
+    "win a first NHS or public sector pilot",
+    "stay ahead of AI safety and data protection requirements"
   ],
   "exclude": [
     "academic-only programmes",
-    "consortium-led grants requiring >3 partners"
+    "consortium-led grants requiring more than 3 partners"
   ]
 }

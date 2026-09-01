@@ -13,18 +13,15 @@ const FEEDS: ReadonlyArray<{ url: string; label: string }> = [
     label: 'AI Safety Institute',
   },
   {
-    url: 'https://www.gov.uk/government/organisations/competition-and-markets-authority.atom',
-    label: 'CMA',
-  },
-  {
-    url: 'https://www.gov.uk/government/organisations/information-commissioner-s-office.atom',
-    label: 'ICO',
-  },
-  {
     url: 'https://www.gov.uk/search/all.atom?keywords=artificial+intelligence&order=updated-newest',
     label: 'gov.uk search: AI',
   },
 ]
+
+// Regulator organisation feeds (CMA, ICO) were dropped: merger inquiries and FOI
+// releases outnumbered AI signal ten to one, and their AI items already arrive
+// through the gov.uk AI search feed. Anything older than a year is history, not radar.
+const MAX_AGE_DAYS = 365
 
 const xml = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '@_' })
 
@@ -91,6 +88,8 @@ export async function scoutGovUk(): Promise<ScoutResult> {
     for (const e of list) {
       const url = linkOf(e.link)
       if (!url || !url.startsWith('https://www.gov.uk/')) continue
+      const published = e.published ?? e.updated
+      if (published && Date.now() - new Date(published).getTime() > MAX_AGE_DAYS * 86_400_000) continue
 
       const contentHash = hashContent(JSON.stringify({ t: textOf(e.title), u: e.updated }))
 
