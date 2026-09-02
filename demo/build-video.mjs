@@ -15,9 +15,9 @@ const list = `${OUT}/frames.txt`
 if (!existsSync(list)) throw new Error(`no frames at ${list} — run demo/agent.mjs first`)
 
 const master = `${OUT}/master.mp4`
-const captions = `${OUT}/captions.ass`
-const base = 'fps=30,scale=2560:-2:flags=lanczos,pad=2560:1440:(ow-iw)/2:(oh-ih)/2:color=0xffffff'
-const filter = `${base}${existsSync(captions) ? ",subtitles='captions.ass'" : ''},format=yuv420p`
+// Captions are drawn inside the page during the take (demo/agent.mjs), so the
+// encoder only scales: this ffmpeg build has no libass.
+const filter = 'fps=30,scale=2560:1440:force_original_aspect_ratio=decrease:flags=lanczos,pad=2560:1440:(ow-iw)/2:(oh-ih)/2:color=0xffffff,format=yuv420p'
 
 execFileSync('ffmpeg', ['-y', '-f', 'concat', '-safe', '0', '-i', list, '-vf', filter, '-c:v', 'libx264', '-preset', 'slow', '-crf', '16', '-movflags', '+faststart', master], { stdio: 'inherit', cwd: OUT })
 

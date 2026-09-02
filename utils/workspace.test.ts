@@ -28,8 +28,10 @@ const policy = item({ sourceUrl: 'https://www.gov.uk/p', kind: 'policy', title: 
 const closed = item({ sourceUrl: 'https://www.gov.uk/c', kind: 'consultation', title: 'Closed consultation', deadline: '2026-08-01' })
 
 describe('filterItems', () => {
-  it('matches every query word across title, summary and body', () => {
+  it('matches any query word across title, summary and body, best hits first', () => {
     expect(filterItems([grant, policy], { query: 'assurance roadmap', kinds: [], deadline: 'any', sources: [] }, now)).toEqual([policy])
+    expect(filterItems([policy, grant], { query: 'NHS imaging pilot', kinds: [], deadline: 'any', sources: [] }, now)).toEqual([grant])
+    expect(filterItems([policy, grant], { query: 'the roadmap for imaging', kinds: [], deadline: 'any', sources: [] }, now)).toEqual([policy, grant])
   })
   it('filters by kind, source and deadline window', () => {
     expect(filterItems([grant, policy, closed], { query: '', kinds: ['grant'], deadline: 'any', sources: [] }, now)).toEqual([grant])

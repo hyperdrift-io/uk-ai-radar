@@ -96,22 +96,37 @@ function matchesDeadline(item: AnalysedItem, filter: DeadlineFilter, now: Date):
   }
 }
 
-function matchesQuery(item: AnalysedItem, query: string): boolean {
-  const q = query.trim().toLowerCase()
-  if (!q) return true
+const STOP = new Set(['a', 'an', 'and', 'the', 'of', 'for', 'to', 'in', 'on', 'or', 'with'])
+
+function queryWords(query: string): string[] {
+  return query.toLowerCase().split(/[^a-z0-9£]+/).filter((w) => w.length > 1 && !STOP.has(w))
+}
+
+/**
+ * How many of the query's words this item mentions. Any word is a match — a
+ * founder or an agent types "NHS imaging pilot" as a wish, not a conjunction —
+ * and the list is ordered by how many words hit.
+ */
+export function queryScore(item: AnalysedItem, query: string): number {
+  const words = queryWords(query)
+  if (words.length === 0) return 1
   const hay = [item.title, item.summary, item.body ?? '', item.amount ?? '', ...item.eligibility].join(' ').toLowerCase()
-  return q.split(/\s+/).every((word) => hay.includes(word))
+  return words.filter((word) => hay.includes(word)).length
 }
 
 /** The one filter implementation: the page holds every item and narrows it here; the server only lists. */
 export function filterItems(items: AnalysedItem[], filters: Filters, now = new Date()): AnalysedItem[] {
-  return items.filter(
-    (item) =>
-      (filters.kinds.length === 0 || filters.kinds.includes(item.kind)) &&
-      (filters.sources.length === 0 || filters.sources.includes(item.sourceHost)) &&
-      matchesDeadline(item, filters.deadline, now) &&
-      matchesQuery(item, filters.query),
-  )
+  const scored = items
+    .filter(
+      (item) =>
+        (filters.kinds.length === 0 || filters.kinds.includes(item.kind)) &&
+        (filters.sources.length === 0 || filters.sources.includes(item.sourceHost)) &&
+        matchesDeadline(item, filters.deadline, now),
+    )
+    .map((item, index) => ({ item, index, score: queryScore(item, filters.query) }))
+    .filter((row) => row.score > 0)
+  // Keep the deadline order the list came in unless the query separates items.
+  return scored.sort((a, b) => b.score - a.score || a.index - b.index).map((row) => row.item)
 }
 
 /** The rows the founder sees in the main list: filtered, minus what was set aside. */

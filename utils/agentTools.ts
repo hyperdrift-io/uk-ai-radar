@@ -29,7 +29,7 @@ export function defineAgentTools(w: Workspace, onExplore: () => Promise<void>) {
       inputSchema: {
         type: 'object',
         properties: {
-          query: { type: 'string', description: 'Words to look for in the title, summary, issuing body and eligibility. Leave empty for everything.' },
+          query: { type: 'string', description: 'Words to look for in the title, summary, issuing body and eligibility. Any word matches; best matches come first. Leave empty for everything.' },
           kinds: { type: 'array', items: { type: 'string', enum: ALL_KINDS }, description: 'Only these kinds of item.' },
           deadline: { type: 'string', enum: DEADLINE_FILTERS, description: '"closing-soon" = within 30 days; "open" = no deadline or not yet passed.' },
           sources: listSchema('Only these source hosts, e.g. "www.ukri.org".'),

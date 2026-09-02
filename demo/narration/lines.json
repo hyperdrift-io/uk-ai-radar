@@ -1,0 +1,10 @@
+{
+  "open": "Every UK government document that moved this month. Grants, tenders, consultations. One founder is supposed to read all of it.",
+  "agent": "This page offers its own tools to whatever agent the founder brought with them.",
+  "profile": "It fills in who they are, from what it already knows. The page marks it as the agent's guess until the founder says yes.",
+  "shortlist": "Now it works the list. Every call moves the page the founder is looking at. Not a transcript of something that happened somewhere else.",
+  "private": "Here is the part a website cannot do on its own. The founder tells their agent something the site never sees. And the suggestions change.",
+  "decide": "When they turn something down, the reason goes back to the agent. It will not offer it again.",
+  "brief": "The brief is written from what survived the founder's judgement, not the model's.",
+  "close": "It read all of it. They made the calls. That is the trade WebMCP makes possible."
+}
