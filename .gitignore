@@ -17,3 +17,9 @@ digests/*
 # Local profiles (only the example is tracked)
 profiles/*.json
 !profiles/example.json
+
+# Demo recordings and generated narration are outputs, not source
+demo/out
+demo/narration/*.wav
+demo/narration/*.mp3
+demo/narration/*.aiff
