@@ -16,9 +16,22 @@ const final = `${OUT}/uk-ai-radar-webmcp.mp4`
 
 const transcript = JSON.parse(await readFile(`${OUT}/transcript.json`, 'utf8'))
 const duration = Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', master]).toString())
-const founderTurns = transcript.filter((t) => t.who === 'founder').map((t) => t.at / 1000)
-const action = transcript.find((t) => t.who === 'founder-action')?.at / 1000
-const briefCall = transcript.find((t) => t.who === 'agent' && /draft/i.test(t.text) && t.at / 1000 > (founderTurns[3] ?? 0))?.at / 1000
+
+// Wall-clock event time → time in the (possibly retimed) video.
+const timemap = await readFile(`${OUT}/timemap.json`, 'utf8').then(JSON.parse).catch(() => null)
+const toVideo = (wallSeconds) => {
+  if (!timemap) return wallSeconds
+  const frameSeconds = wallSeconds * (timemap.original / timemap.wall)
+  let last = timemap.map[0]
+  for (const row of timemap.map) { if (row[0] > frameSeconds) break; last = row }
+  return last[1]
+}
+const at = (t) => toVideo(t.at / 1000)
+const founderTurns = transcript.filter((t) => t.who === 'founder').map(at)
+const actionEvent = transcript.find((t) => t.who === 'founder-action')
+const action = actionEvent ? at(actionEvent) : undefined
+const briefEvent = transcript.find((t) => t.who === 'agent' && /draft/i.test(t.text) && t.at / 1000 > 0 && founderTurns.length === 4 && at(t) > founderTurns[3])
+const briefCall = briefEvent ? at(briefEvent) : undefined
 
 const clipLen = (name) => Number(execFileSync('ffprobe', ['-v', 'error', '-show_entries', 'format=duration', '-of', 'csv=p=0', `${NARR}/${name}.wav`]).toString())
 
