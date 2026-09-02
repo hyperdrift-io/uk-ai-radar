@@ -8,7 +8,7 @@ Independent project. Not affiliated with HM Government.
 in a browser with an agent (ChatGPT's built-in browser, or Chrome with WebMCP enabled)
 and the agent works the page with you: it reads every item, proposes your profile,
 suggests what fits and why, and drafts the brief — you keep the final call on each.
-How it is built: [WEBMCP.md](./WEBMCP.md).
+How it is built: [WEBMCP.md](./WEBMCP.md). Two minutes of it on camera: [youtu.be/z4B0gtwbjB4](https://youtu.be/z4B0gtwbjB4).
 
 ## Why
 
