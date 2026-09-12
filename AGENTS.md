@@ -1,6 +1,7 @@
 # UK AI Radar — agent guide
 
-> Inherits [`apps/poc/AGENTS.md`](../AGENTS.md). This POC is independent until promoted; do not wire to production infra.
+> Inherits [`apps/poc/AGENTS.md`](../AGENTS.md) and the [Hyperdrift workspace AGENTS.md](../../../AGENTS.md) (`~/dev/hyperdrift/AGENTS.md`).
+> Deployed at https://radar.hyperdrift.io (port 3011, per `infra/group_vars/apps.yml`); deploys go through `infra/`.
 
 ## Mission
 
