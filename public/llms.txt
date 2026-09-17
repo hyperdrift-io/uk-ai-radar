@@ -1,0 +1,12 @@
+# UK AI Radar
+
+> An independent project, not affiliated with HM Government. Each week it reads gov.uk, UKRI and Parliament, finds what changed, and ranks the grants, tenders, consultations and policy shifts that matter to a UK AI founder's profile. Every claim links to its source.
+
+## Pages
+
+- [Home](https://radar.hyperdrift.io/): what the radar does, how the four stages work, and the briefs published so far
+- [Explore](https://radar.hyperdrift.io/explore): every tracked item, filterable by kind and deadline; a browser agent gets its own WebMCP tools here
+- [Example brief](https://radar.hyperdrift.io/brief/example): a full ranked brief for a sample founder profile, with deadlines, amounts and sources
+- [Sources](https://radar.hyperdrift.io/sources): the whitelisted government hosts the radar reads, and how each is accessed
+- [About](https://radar.hyperdrift.io/about): mission, independence, methodology and limitations
+- [Source and README](https://github.com/hyperdrift-io/uk-ai-radar): architecture, the persona pipeline and how to run a digest for your own profile
