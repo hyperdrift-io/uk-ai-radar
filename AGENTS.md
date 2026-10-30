@@ -2,6 +2,7 @@
 
 > Inherits [`apps/poc/AGENTS.md`](../AGENTS.md) and the [Hyperdrift workspace AGENTS.md](../../../AGENTS.md) (`~/dev/hyperdrift/AGENTS.md`).
 > Deployed at https://radar.hyperdrift.io (port 3011, per `infra/group_vars/apps.yml`); deploys go through `infra/`.
+> Stage: incubating (founder, 29 October 2026).
 
 ## Mission
 
@@ -26,16 +27,9 @@ Each persona is a pure async function `(state) => Promise<Partial<state>>` under
 - **Strategist** — score each analysed item against the active founder profile. Write the per-item "so what?" angle.
 - **Editor** — dedupe across personas, rank by `deadline × fit × actionability`, emit the brief.
 
-Deferred to v2 (architecture supports plug-in without graph rewrite):
-
-- **Lawyer** — flag contradictions with stated user policies / ToS.
-- **Lobbyist** — surface consultations and committee inquiries with a drafted response skeleton.
-- **Grant Writer** — produce an application skeleton in funder-mirrored language.
-- **Archivist** — visualise diffs across runs of the same source.
-
 ## Multi-tenant story
 
-The same cache and the same Scout/Analyst output feed multiple Strategist runs, one per profile. This is the demo of `TenantContext` isolation from `apps/orchestra/docs/whitepapers/2026-multi-tenant-agent-architecture.md` — retrieval is shared, ranking is per-tenant.
+The same cache and the same Scout/Analyst output feed multiple Strategist runs, one per profile. This is the demo of `TenantContext` isolation from `apps/poc/orchestra/docs/whitepapers/2026-multi-tenant-agent-architecture.md` — retrieval is shared, ranking is per-tenant.
 
 ## Government collaboration posture
 
@@ -46,19 +40,16 @@ We want HMG bodies (DSIT, AISI, UKRI, i.AI, the Open Innovation Team) to see thi
 - **Cite, link, do not republish**.
 - **Stay accurate** — one hallucinated grant deadline destroys credibility with the audience we most want.
 
-Post-MVP introduction avenues are listed in the plan file. Order is: open publication → consultation responses → Open Innovation Team / RHC → Innovate UK Edge advisors → DSIT AI Directorate → i.AI co-build conversation.
-
 ## Non-goals (MVP)
 
 - Auth, accounts, billing.
 - Email / Slack delivery.
 - Vector store or corpus-wide RAG.
-- Promotion into `apps/orchestra` (separate decision).
 - Coverage of think tanks, press, social media — the value is filtering these *out*.
 
 ## Conventions
 
-- pnpm. TypeScript strict. Vitest.
+- pnpm until the npm migration (debt noted in `infra/group_vars/apps.yml`). TypeScript strict. Vitest.
 - Semantic HTML; GOV.UK Design System tokens for visuals. No Tailwind, no CSS-in-JS.
 - Personas are small and testable. If a persona file exceeds ~120 lines, split it.
 - Every LLM call returns Zod-validated structured output. No string parsing of model responses.
