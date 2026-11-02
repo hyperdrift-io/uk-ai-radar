@@ -24,7 +24,7 @@ useSeoMeta({
         </p>
         <ol class="govuk-list govuk-list--number">
           <li>Make sure <code>profiles/{{ profile }}.json</code> exists.</li>
-          <li>Run <code>pnpm digest --profile profiles/{{ profile }}.json</code>.</li>
+          <li>Run <code>npm run digest -- --profile profiles/{{ profile }}.json</code>.</li>
           <li>Reload this page.</li>
         </ol>
       </div>
@@ -51,7 +51,7 @@ useSeoMeta({
           <ul class="govuk-list govuk-list--bullet">
             <li>Government output this cycle was generic — wait for the next run.</li>
             <li>The profile is narrow — broaden <code>sectors</code> or <code>goals</code> in <code>profiles/{{ profile }}.json</code>.</li>
-            <li>You have an old digest from a previous narrow run — re-run <code>pnpm digest --profile profiles/{{ profile }}.json</code>.</li>
+            <li>You have an old digest from a previous narrow run — re-run <code>npm run digest -- --profile profiles/{{ profile }}.json</code>.</li>
           </ul>
         </div>
       </div>

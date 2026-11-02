@@ -30,9 +30,9 @@ This POC demonstrates Orchestra's positioning on a real, high-signal vertical: a
 cd apps/poc/uk-ai-radar
 cp .env.example .env                          # add ANTHROPIC_API_KEY
 cp profiles/example.json profiles/acme.json   # edit for your profile
-pnpm install
-pnpm digest --profile profiles/acme.json      # generate brief (writes to digests/)
-pnpm dev                                      # view at http://localhost:3000
+npm ci
+npm run digest -- --profile profiles/acme.json      # generate brief (writes to digests/)
+npm run dev                                     # view at http://localhost:3000
 ```
 
 Visit `/brief/acme` to see the brief, `/sources` for tracked surfaces, `/about` for methodology.
@@ -63,8 +63,8 @@ Deferred to v2: Lawyer, Lobbyist, Grant Writer, Archivist. The graph is designed
 Profiles are JSON files under `profiles/`. The same cache produces different briefs depending on the profile. Run with two profiles to demonstrate:
 
 ```bash
-pnpm digest --profile profiles/acme.json
-pnpm digest --profile profiles/beta.json
+npm run digest -- --profile profiles/acme.json
+npm run digest -- --profile profiles/beta.json
 ```
 
 Maps to the `TenantContext` pattern in `apps/orchestra/docs/whitepapers/2026-multi-tenant-agent-architecture.md`.
@@ -72,9 +72,9 @@ Maps to the `TenantContext` pattern in `apps/orchestra/docs/whitepapers/2026-mul
 ## Verification
 
 ```bash
-pnpm test                                        # vitest unit tests
-pnpm digest --profile profiles/example.json      # first run: full fetch
-pnpm digest --profile profiles/example.json      # second run: cache hits (<20% tokens)
+npm test                                        # vitest unit tests
+npm run digest -- --profile profiles/example.json      # first run: full fetch
+npm run digest -- --profile profiles/example.json      # second run: cache hits (<20% tokens)
 ```
 
 Acceptance:

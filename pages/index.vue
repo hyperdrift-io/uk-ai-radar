@@ -50,7 +50,7 @@ const { data: briefs } = await useFetch('/api/briefs')
     </div>
     <div v-else class="govuk-inset-text">
       No briefs yet. Create a profile in <code>profiles/</code> and run
-      <code>pnpm digest --profile profiles/your-profile.json</code> to generate one.
+      <code>npm run digest -- --profile profiles/your-profile.json</code> to generate one.
     </div>
 
     <h2 class="govuk-heading-l">Methodology</h2>

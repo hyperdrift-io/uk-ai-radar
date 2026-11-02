@@ -49,7 +49,7 @@ We want HMG bodies (DSIT, AISI, UKRI, i.AI, the Open Innovation Team) to see thi
 
 ## Conventions
 
-- pnpm until the npm migration (debt noted in `infra/group_vars/apps.yml`). TypeScript strict. Vitest.
+- npm. TypeScript strict. Vitest.
 - Semantic HTML; GOV.UK Design System tokens for visuals. No Tailwind, no CSS-in-JS.
 - Personas are small and testable. If a persona file exceeds ~120 lines, split it.
 - Every LLM call returns Zod-validated structured output. No string parsing of model responses.
